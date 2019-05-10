@@ -5,7 +5,7 @@
         "secure-http": true
     },
 
-    "name": "bruno/dai",
+    "name": "redditer",
     "description": "Aplicacao para transferir e curar conteudos do reddit para o wordpress",
     "type": "project",
     "license": "MIT Academic License",
@@ -13,6 +13,10 @@
         {
             "name": "W1sh",
             "email": "brunoferreira.ebm@gmail.com"
+        },
+        {
+            "name": "",
+            "email": ""
         }
     ],
     "require": {},
