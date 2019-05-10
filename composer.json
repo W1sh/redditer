@@ -15,18 +15,18 @@
             "email": "brunoferreira.ebm@gmail.com"
         },
         {
-            "name": "",
-            "email": ""
+            "name": "DaveFux",
+            "email": "brunoferreira.ebm@gmail.com"
         }
     ],
     "require": {},
 
     "autoload":{
         "psr-4":{
-            "libs\\wordpresser\\" : "./libs/wordpresser/",
-            "libs\\twitter_bot\\" : "./libs/twitter_bot/",
-            "libs\\helpers\\am\\internet\\" : "./libs/am/internet/",
-            "libs\\helpers\\am\\util\\" : "./libs/am/util/"
+            "wordpresser\\" : "./libs/wordpresser/",
+            "twitter_bot\\" : "./libs/twitter_bot/",
+            "am\\internet\\" : "./libs/helpers/am/internet/",
+            "am\\util\\" : "./libs/helpers/am/util/"
         }
     }
 }
