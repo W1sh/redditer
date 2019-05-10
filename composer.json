@@ -1,0 +1,28 @@
+{
+    "config": {
+        "preferred-install": "dist",
+        "disable-tls": false,
+        "secure-http": true
+    },
+
+    "name": "bruno/dai",
+    "description": "Aplicacao para transferir e curar conteudos do reddit para o wordpress",
+    "type": "project",
+    "license": "MIT Academic License",
+    "authors": [
+        {
+            "name": "W1sh",
+            "email": "brunoferreira.ebm@gmail.com"
+        }
+    ],
+    "require": {},
+
+    "autoload":{
+        "psr-4":{
+            "libs\\wordpresser\\" : "./libs/wordpresser/",
+            "libs\\twitter_bot\\" : "./libs/twitter_bot/",
+            "libs\\helpers\\am\\internet\\" : "./libs/am/internet/",
+            "libs\\helpers\\am\\util\\" : "./libs/am/util/"
+        }
+    }
+}
