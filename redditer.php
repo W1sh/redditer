@@ -31,7 +31,7 @@ class Redditer {
 
     public function build_query($pSubreddit, $pCategory=Category::cHot, $pTime=Time::tDay, $pLimit=10) : string{
         return sprintf(self::REDDIT_SEARCH_BASE, $pSubreddit, $pCategory, $pTime, $pLimit);
-    }
+    }// build_query
 
     public function fetch_from_json($pJson) {
         $posts = $pJson->data->children;
@@ -44,8 +44,19 @@ class Redditer {
             echo $keys->data->num_comments;
             echo $keys->data->permalink;
             echo $keys->data->url;
+            echo $keys->data->over_18;
+            echo $keys->data->spoiler;
         }
-    }
+    }// fetch_from_json
+
+    private function build_title($pTitle, $pOver18=false, $pSpoiler=false) : string{
+        if($pSpoiler && $pOver18){
+            return sprintf("(%s | %s) %s", $pOver18, $pSpoiler, $pTitle);
+        }else if($pSpoiler || $pOver18){
+            return sprintf("(%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pTitle);
+        }
+        return $pTitle;
+    }// build_title
 }// redditer
 
 $r = new Redditer();
