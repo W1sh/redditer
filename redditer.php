@@ -4,6 +4,8 @@ require_once "structures.php";
 
 use am\internet\HttpHelper;
 
+//analisar KEY_ERROR
+
 class Redditer {
     public $mHttpHelper;
 
@@ -37,58 +39,42 @@ class Redditer {
         }
         echo $permalink.PHP_EOL;
         $json = $this->get_json($permalink);
-        $a = $this->get_comments($json);
         $comments = $json[1]->data->children;
-        /*$commentsArray = array();
-        array_pop($comments);
-        foreach ($comments as $keys){
-            $cAwards = $keys->data->total_awards_received;
-            $cScore = $keys->data->score;
-            //$cReplies = $this->find_number_of_replies($keys->data->replies->data->children);
-            $cAuthor = $keys->data->author;
-            $cContent = $keys->data->body;
-            $cCreated = $keys->data->created_utc;
-            $commentsArray[] = new RedditComment($cAwards, $cScore, $cReplies, $cAuthor, $cContent, $cCreated);
-        }
-        echo sizeof($commentsArray);*/
-        //echo $commentsJSON[1]->data->children[0]->body;
+        $this->extract_comments($comments);
+
+        $mostUpvoted = $this->find_most_upvoted_comment($this->mCommentsList);
+        $mostControversial = $this->find_most_controversial_comment($this->mCommentsList);
+        $mostAwarded = $this->find_most_awarded_comment($this->mCommentsList);
     }// fetch_from_json
 
     private function get_json($pUrl) {
-        $json = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
-        return json_decode($json);
+        $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
+        return json_decode($data);
     }
 
-    private function get_comments($pJson) : array {
-        $aComments = array();
-        $comments = $pJson[1]->data->children;
-        foreach ($comments as $comment){
-            if(isset($comment->data->replies->data->children)){
-                // existem replies, continuar loop
-            }else {
-                // nao ha mais replies, criar comment e sair ? (onde fica o comment)
+    private $mCommentsList = array();
+    private function extract_comments($pJsonComments) {
+        foreach ($pJsonComments as $comment){
+            $jAwards = $comment->data->total_awards_received;
+            $jScore = $comment->data->score;
+            $jAuthor = $comment->data->author;
+            $jContent = $comment->data->body;
+            $jCreated = gmdate("r", $comment->data->created_utc);
+            $jReplies = $comment->data->replies != "" ? $comment->data->replies->data->children : null;
+            if(is_array($jReplies) && count($jReplies)>0){
+                $jNumReplies = count($comment->data->replies->data->children);
+                $this->extract_comments($jReplies);
+            }else{
+                $jNumReplies = 0;
             }
-            $cAwards = $comment->data->total_awards_received;
-            echo $cAwards.PHP_EOL;
-            $cScore = $comment->data->score;
-            echo $cScore.PHP_EOL;
-            $cReplies = sizeof($comment->data->replies->data->children);
-            echo is_array($comment->data->replies->data->children).PHP_EOL;
-            echo $cReplies.PHP_EOL;
-            $cAuthor = $comment->data->author;
-            echo $cAuthor.PHP_EOL;
-            $cContent = $comment->data->body;
-            echo $cContent.PHP_EOL;
-            $cCreated = $comment->data->created_utc;
-            echo $cCreated.PHP_EOL;
-            $aComments[] = new RedditComment($cAwards, $cScore, $cReplies, $cAuthor, $cContent, $cCreated);
+            $this->mCommentsList[] = new RedditComment($jAwards, $jScore, $jNumReplies, $jAuthor, $jContent, $jCreated);
+            echo $jAuthor.PHP_EOL;
+            echo $jAwards.PHP_EOL; 
+            echo $jScore.PHP_EOL;
+            echo $jContent.PHP_EOL;
+            echo $jCreated.PHP_EOL;         
         }
-        return $aComments;
     }
-
-    private function find_number_of_replies($pReplies) : int {
-        return 0;
-    }//find_number_of_replies
 
     private function find_most_awarded_comment($pArrayComments) : RedditComment{
         return RedditComment;
@@ -113,6 +99,6 @@ class Redditer {
 }// redditer
 
 $r = new Redditer();
-$json = $r->mHttpHelper->http($r->build_query("apexlegends", Category::cTop, Time::tAll))[HttpHelper::KEY_BIN];
+$json = $r->mHttpHelper->http($r->build_query("apexlegends", Category::cTop, Time::tDay))[HttpHelper::KEY_BIN];
 $oJson = json_decode($json);
 $r->fetch_from_json($oJson);
