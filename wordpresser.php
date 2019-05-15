@@ -7,11 +7,8 @@ require_once "./vendor/autoload.php";
 use wordpresser\am_wordpress_tools;
 
 date_default_timezone_set("Europe/Lisbon");
-
 $BLOG = array("blogname"=>"SUPA ARTIGO 33", "user"=>"admin", "pass"=>"1234", "blogxmlrpc"=>"http://localhost:9000/xmlrpc.php");
-
 define ("BLOG_USER", $BLOG['user']);
-
 /*
  * user ou password errada dará
  * @wordpress_postToBlog : Something went wrong - 403 : Incorrect username or password.
@@ -20,6 +17,25 @@ define ("BLOG_USER", $BLOG['user']);
  */
 define ("BLOG_PASS", $BLOG['pass']);
 define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
+function postFromRedditToWordpress(
+$title, 
+$body, 
+$cats, 
+$keyWordString, 
+$featuredImageId=null, 
+$postDate,
+$allowComments=true,
+$allowPings=true,
+$user=BLOG_USER,
+$pass=BLOG_PASS,
+$blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC ){
+
+    $res=wordpress_postToBlog($title, $body, $cats, $keyWordString,  $featuredImageId, $postDate,$allowComments,$allowPings,$user, $pass, $blogXmlRpcDotPhpFullUrl);
+    echo ($res);
+    
+}
+
+
 
 $ret = wordpress_postToBlog (
     $title = "um post via AM's Wordpress Tools",
