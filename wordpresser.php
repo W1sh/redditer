@@ -2,7 +2,7 @@
 
 require_once __DIR__."/vendor/autoload.php";
 require_once __DIR__."/libs/wordpresser/am_wordpress_tools.php";
-require_once __DIR__."redditer.php";
+require_once __DIR__."/redditer.php";//ESTE É O PROBLEM
 
 //use wordpresser\am_wordpress_tools;
 
@@ -18,17 +18,16 @@ define ("BLOG_USER", $BLOG['user']);
  */
 define ("BLOG_PASS", $BLOG['pass']);
 define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
-function postFromRedditToWordpress(
-$postArray,
-$allowComments=true,
-$allowPings=true){
-    foreach($postArray as $post){
-    $text=$post->body."<br><p>Author:".$post->author."<p><br><h4>The most Upvoted Comment</h4>"."<br>"."<h4>The most Awarded Comment</h4>"."<br>"."<h4>The most Controversial Comment</h4>";
-    $res=wordpress_postToBlog($post->title, $post->body, $cats, $keyWordString,  $featuredImageId, $postDate, $allowComments,$allowPings,BLOG_USER, BLOG_PASS, BLOG_XMLRPC);
-    echo ($res);
-    }
-}
 
+function postFromRedditToWordpress($postArray,$allowComments=true,$allowPings=true){
+    $post=$postArray[0];
+    //foreach($postArray as $post){
+    $text=$post->body."<br><p>Author:".$post->author."<p><br><h4>The most Upvoted Comment</h4>"."<br>"."<h4>The most Awarded Comment</h4>"."<br>"."<h4>The most Controversial Comment</h4>";
+    $res=wordpress_postToBlog($post->title, $text, "test", "Test",  null, $post->created, $allowComments,$allowPings,BLOG_USER, BLOG_PASS, BLOG_XMLRPC);
+    echo ($res);
+    //}
+}
+/*
 $ret = wordpress_postToBlog (
     $title = "um post via AM's Wordpress Tools",
     $body = "Funciona?",
@@ -55,7 +54,10 @@ $ret = wordpress_postToBlog (
  * @wordpress_postToBlog : Posted OK!
  */
 
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
+
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 10);
 $json = $r->get_json();
-$postsList = $r->get_posts($json, 1);
-var_dump ($ret);
+$postsList = $r->get_posts($json, 1);/*
+var_dump($postsList);*/
+postFromRedditToWordpress($postsList);
+//Houve outro problema, o Thumbnail nao esta a ser aceite pelo wordpress_postToBlog

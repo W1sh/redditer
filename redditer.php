@@ -9,7 +9,8 @@ use am\internet\HttpHelper;
 // TODO: PERGUNTAR:
 // ferramenta para visualizar estatisticas
 // remover preposições do mapa
-// wordpresser nao encontra am_wordpress_tools
+// wordpresser nao encontra am_wordpress_tools DONE
+// wordpresser como funciona thumbnail
 
 class Redditer {
 
@@ -173,8 +174,8 @@ class Redditer {
         return $pTitle;
     }// build_title
 }// Redditer
-
+/* ISTO ERA O PROBLEMA
 $r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
 $json = $r->get_json();
-$r->get_posts($json, 50);
+$r->get_posts($json, 50);*/
 //$r->get_statistics();
