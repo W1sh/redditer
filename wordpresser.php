@@ -18,21 +18,18 @@ define ("BLOG_USER", $BLOG['user']);
 define ("BLOG_PASS", $BLOG['pass']);
 define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
 function postFromRedditToWordpress(
-$title, 
-$body, 
-$cats, 
-$keyWordString, 
-$featuredImageId=null, 
-$postDate,
+$postArray, 
+$commentsArray,
 $allowComments=true,
 $allowPings=true,
 $user=BLOG_USER,
 $pass=BLOG_PASS,
 $blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC ){
-
-    $res=wordpress_postToBlog($title, $body, $cats, $keyWordString,  $featuredImageId, $postDate,$allowComments,$allowPings,$user, $pass, $blogXmlRpcDotPhpFullUrl);
+    foreach($postArray as $post){
+    $text;
+    $res=wordpress_postToBlog($post->title, $post->body, $cats, $keyWordString,  $featuredImageId, $postDate, $allowComments,$allowPings,$user, $pass, $blogXmlRpcDotPhpFullUrl);
     echo ($res);
-    
+    }
 }
 
 

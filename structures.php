@@ -26,8 +26,9 @@ class RedditPost {
     public $postUrl;
     public $contentUrl;
     public $created;
+    public $thumbnail;
 
-    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated){
+    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated, $pThumbnail){
         $this->title = $pTitle;
         $this->body = $pBody;
         $this->score = $pScore;
@@ -36,6 +37,7 @@ class RedditPost {
         $this->postUrl = $pPostUrl;
         $this->contentUrl = $pContentUrl;
         $this->created = $pCreated;
+        $this->thumbnail = $pThumbnail;
     }
 }
 
