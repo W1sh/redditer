@@ -17,6 +17,28 @@ abstract class Time{
     const tAll = "all";
 }
 
+class RedditPost {
+    public $title;
+    public $body;
+    public $score;
+    public $author;
+    public $awards;
+    public $postUrl;
+    public $contentUrl;
+    public $created;
+
+    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated){
+        $this->title = $pTitle;
+        $this->body = $pBody;
+        $this->score = $pScore;
+        $this->author = $pAuthor;
+        $this->awards = $pAwards;
+        $this->postUrl = $pPostUrl;
+        $this->contentUrl = $pContentUrl;
+        $this->created = $pCreated;
+    }
+}
+
 class RedditComment {
     public $awards;
     public $score;

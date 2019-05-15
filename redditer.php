@@ -7,7 +7,10 @@ use am\internet\HttpHelper;
 //analisar KEY_ERROR
 
 class Redditer {
+
     public $mHttpHelper;
+    public $mSubreddit;
+    public $mLimit;
 
     const REDDIT_SEARCH_BASE = "https://www.reddit.com/r/%s/%s.json?t=%s&limit=%d";
 
@@ -16,11 +19,23 @@ class Redditer {
     }//__construct
 
     public function build_query($pSubreddit, $pCategory=Category::cHot, $pTime=Time::tDay, $pLimit=10) : string{
+        $this->mSubreddit = $pSubreddit;
+        $this->mLimit = $pLimit;
         return sprintf(self::REDDIT_SEARCH_BASE, $pSubreddit, $pCategory, $pTime, $pLimit);
     }// build_query
 
     public function fetch_from_json($pJson) {
         $posts = $pJson->data->children;
+        $numPosts = $pJson->data->dist;
+        if($numPosts < $this->mLimit){
+            // TODO: lidar com mais posts dos que mostrados no primeiro json
+
+            /*$jAfter = $pJson->data->after;
+            $afterURL = self::REDDIT_SEARCH_BASE.sprintf("&after=%s", $jAfter);
+            $json = $this->mHttpHelper->http($this->build_query("apexlegends", Category::cTop, Time::tDay))[HttpHelper::KEY_BIN];
+            $oJson = json_decode($json);
+            $this->fetch_from_json($oJson);*/
+        }
         foreach ($posts as $keys){
             $permalink = "https://www.reddit.com".substr($keys->data->permalink, 0, -1).".json";
             /*echo $keys->data->title;
@@ -36,9 +51,13 @@ class Redditer {
             echo $keys->data->spoiler;
             echo $keys->data->created_utc;
             // gmdate ("d-m-Y h:m", $created_utc);*/
-        }
+        }// foreach
         echo $permalink.PHP_EOL;
         $json = $this->get_json($permalink);
+        $post = $json[0]->data->children[0];
+        $this->extract_post($post);
+
+        var_dump($this->mPostsList[0]);
         $comments = $json[1]->data->children;
         $this->extract_comments($comments);
 
@@ -51,7 +70,25 @@ class Redditer {
     private function get_json($pUrl) {
         $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
         return json_decode($data);
+    }// get_json
+
+    private $mPostsList = array();
+    private function extract_post($pJson) {
+        $jTitle = $pJson->data->title;
+        $jBody = $pJson->data->selftext;
+        $jScore = $pJson->data->score;
+        $jAwards = $pJson->data->total_awards_received;
+        $jAuthor = $pJson->data->author;
+        $jContentUrl = "https://www.reddit.com".$pJson->data->permalink;
+        $jPostUrl = $pJson->data->url;
+        $jOver18 = $pJson->data->over_18;
+        $jSpoiler = $pJson->data->spoiler;
+        $jCreated = gmdate("d-m-Y h:m", $pJson->data->created_utc); 
+        $builtTitle = $this->build_title($jTitle, $jOver18, $jSpoiler);
+        $this->mPostsList[] = new RedditPost(
+            $builtTitle, $jBody, $jScore, $jAuthor, $jAwards, $jPostUrl, $jContentUrl, $jCreated);
     }
+
 
     private $mCommentsList = array();
     private function extract_comments($pJsonComments) {
@@ -68,14 +105,10 @@ class Redditer {
             }else{
                 $jNumReplies = 0;
             }
-            $this->mCommentsList[] = new RedditComment($jAwards, $jScore, $jNumReplies, $jAuthor, $jContent, $jCreated);
-            echo $jAuthor.PHP_EOL;
-            echo $jAwards.PHP_EOL; 
-            echo $jScore.PHP_EOL;
-            echo $jContent.PHP_EOL;
-            echo $jCreated.PHP_EOL;         
-        }
-    }
+            $this->mCommentsList[] = new RedditComment(
+                $jAwards, $jScore, $jNumReplies, $jAuthor, $jContent, $jCreated);     
+        }// foreach
+    }// extract_comments
 
     private function find_most_awarded_comment($pArrayComments){
         usort($pArrayComments, function ($a, $b){
