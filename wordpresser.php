@@ -1,12 +1,13 @@
 <?php
-/**
- * Artur Marques
- */
-require_once "./vendor/autoload.php";
 
-use wordpresser\am_wordpress_tools;
+require_once __DIR__."/vendor/autoload.php";
+require_once __DIR__."/libs/wordpresser/am_wordpress_tools.php";
+require_once __DIR__."redditer.php";
+
+//use wordpresser\am_wordpress_tools;
 
 date_default_timezone_set("Europe/Lisbon");
+
 $BLOG = array("blogname"=>"SUPA ARTIGO 33", "user"=>"admin", "pass"=>"1234", "blogxmlrpc"=>"http://localhost:9000/xmlrpc.php");
 define ("BLOG_USER", $BLOG['user']);
 /*
@@ -18,21 +19,15 @@ define ("BLOG_USER", $BLOG['user']);
 define ("BLOG_PASS", $BLOG['pass']);
 define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
 function postFromRedditToWordpress(
-$postArray, 
-$commentsArray,
+$postArray,
 $allowComments=true,
-$allowPings=true,
-$user=BLOG_USER,
-$pass=BLOG_PASS,
-$blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC ){
+$allowPings=true){
     foreach($postArray as $post){
-    $text;
-    $res=wordpress_postToBlog($post->title, $post->body, $cats, $keyWordString,  $featuredImageId, $postDate, $allowComments,$allowPings,$user, $pass, $blogXmlRpcDotPhpFullUrl);
+    $text=$post->body."<br><p>Author:".$post->author."<p><br><h4>The most Upvoted Comment</h4>"."<br>"."<h4>The most Awarded Comment</h4>"."<br>"."<h4>The most Controversial Comment</h4>";
+    $res=wordpress_postToBlog($post->title, $post->body, $cats, $keyWordString,  $featuredImageId, $postDate, $allowComments,$allowPings,BLOG_USER, BLOG_PASS, BLOG_XMLRPC);
     echo ($res);
     }
 }
-
-
 
 $ret = wordpress_postToBlog (
     $title = "um post via AM's Wordpress Tools",
@@ -60,4 +55,7 @@ $ret = wordpress_postToBlog (
  * @wordpress_postToBlog : Posted OK!
  */
 
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
+$json = $r->get_json();
+$postsList = $r->get_posts($json, 1);
 var_dump ($ret);

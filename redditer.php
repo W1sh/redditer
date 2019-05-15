@@ -6,6 +6,11 @@ use am\internet\HttpHelper;
 
 //analisar KEY_ERROR
 
+// TODO: PERGUNTAR:
+// ferramenta para visualizar estatisticas
+// remover preposições do mapa
+// wordpresser nao encontra am_wordpress_tools
+
 class Redditer {
 
     public $mHttpHelper;
@@ -26,9 +31,9 @@ class Redditer {
         $this->mQuery['after'] = $pAfter;
         $this->mQuery['limit'] = $pLimit;
         $this->mHttpHelper = new HttpHelper(HttpHelper::USER_AGENT_STRING_MOZ47);
-    }//__construct
+    }// __construct
 
-    public function build_query() {
+    private function build_query() {
         $formattedURL = sprintf(self::REDDIT_SEARCH_BASE,
             $this->mQuery['subreddit'],
             $this->mQuery['category'],
@@ -40,17 +45,8 @@ class Redditer {
         }else{
             return $formattedURL."&after=".$this->mQuery['after'];
         }
-    }
+    }// build_query
 
-    /*public function build_query($pSubreddit, $pCategory=Category::cHot,
-     $pTime=Time::tDay, $pAfter=false, $pLimit=100) : string{
-        if($pAfter != false){
-            return sprintf(self::REDDIT_SEARCH_BASE, $pSubreddit, $pCategory, $pTime, $pLimit)."&after=".$pAfter;
-        }
-        return sprintf(self::REDDIT_SEARCH_BASE, $pSubreddit, $pCategory, $pTime, $pLimit);
-    }// build_query*/
-
-    // untested
     public function get_posts($pJson, $pNumPosts){
         $posts = $pJson->data->children;
         $jAfter = $pJson->data->after;
@@ -58,62 +54,43 @@ class Redditer {
         foreach ($posts as $post){
             $count = $count -1;
             if($pNumPosts < 0) break;
-            $this->extract_post($post);
-        }
+            $redditPost = $this->extract_post($post);
+
+            $jPostUrl = substr($redditPost->contentUrl, 0, -1).".json";
+            echo $jPostUrl.PHP_EOL;
+            $json = $this->get_json_from_url($jPostUrl);
+            $comments = $json[1]->data->children;
+            $this->extract_comments($comments);
+
+            $mostUpvoted = $this->find_most_upvoted_comment($this->mCommentsList);
+            $mostControversial = $this->find_most_controversial_comment($this->mCommentsList);
+            $mostAwarded = $this->find_most_awarded_comment($this->mCommentsList);
+
+            $redditPost->set_comments($mostUpvoted, $mostControversial, $mostAwarded);
+            $this->mPostsList[] = $redditPost;
+        }// foreach
         if($count > 0){
             $this->mQuery['after'] = $jAfter;
             $this->get_posts($this->build_query(), $count);
-        }
-        var_dump($this->mPostsList);
-    }
+        }// if
+        return $this->mPostsList;
+    }// get_posts
 
-    public function fetch_from_json($pJson) {
-        $posts = $pJson->data->children;
-        $numPosts = $pJson->data->dist;
-        //if($numPosts < $this->mLimit){
-            // TODO: lidar com mais posts dos que mostrados no primeiro json
+    public function get_json() {
+        $jurl = $this->build_query();
+        return $this->get_json_from_url($jurl);
+    }// get_json
 
-            /*$jAfter = $pJson->data->after;
-            $afterURL = self::REDDIT_SEARCH_BASE.sprintf("&after=%s", $jAfter);
-            $json = $this->mHttpHelper->http($this->build_query("apexlegends", Category::cTop, Time::tDay))[HttpHelper::KEY_BIN];
-            $oJson = json_decode($json);
-            $this->fetch_from_json($oJson);*/
-        //}
-        foreach ($posts as $keys){
-            $permalink = "https://www.reddit.com".substr($keys->data->permalink, 0, -1).".json";
-            /*echo $keys->data->title;
-            //echo $keys->data->selftext;
-            //echo $keys->data->selftext_html;
-            echo $keys->data->ups; // maybe use ->score instead
-            echo $keys->data->total_awards_received;
-            echo $keys->data->author;
-            echo $keys->data->num_comments;
-            echo $keys->data->permalink;
-            echo $keys->data->url;
-            echo $keys->data->over_18;
-            echo $keys->data->spoiler;
-            echo $keys->data->created_utc;
-            // gmdate ("d-m-Y h:m", $created_utc);*/
-        }// foreach
-        echo $permalink.PHP_EOL;
-        $json = $this->get_json($permalink);
-        $post = $json[0]->data->children[0];
-        $this->extract_post($post);
-
-        var_dump($this->mPostsList[0]);
-        $comments = $json[1]->data->children;
-        $this->extract_comments($comments);
-
-        $mostUpvoted = $this->find_most_upvoted_comment($this->mCommentsList);
-        $mostControversial = $this->find_most_controversial_comment($this->mCommentsList);
-        $mostAwarded = $this->find_most_awarded_comment($this->mCommentsList);
-
-    }// fetch_from_json
-
-    private function get_json($pUrl) {
+    public function get_json_from_url($pUrl) {
         $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
         return json_decode($data);
-    }// get_json
+    }// get_json_from_url
+
+    public function get_statistics(){
+        var_dump($this->frequency_map($this->mPostsList, "title", 20));
+        var_dump($this->frequency_map($this->mPostsList, "body", 20));
+        var_dump($this->frequency_map($this->mCommentsList, "body", 20));
+    }// get_statistics
 
     private $mPostsList = array();
     private function extract_post($pJson) {
@@ -129,7 +106,7 @@ class Redditer {
         $jThumbnail = $pJson->data->thumbnail;
         $jCreated = gmdate("d-m-Y h:m", $pJson->data->created_utc); 
         $builtTitle = $this->build_title($jTitle, $jOver18, $jSpoiler);
-        $this->mPostsList[] = new RedditPost(
+        return new RedditPost(
             $builtTitle, $jBody, $jScore, $jAuthor, $jAwards, $jPostUrl, $jContentUrl, $jCreated, $jThumbnail);
     }// extract_json
 
@@ -140,7 +117,7 @@ class Redditer {
                 $jAwards = $comment->data->total_awards_received;
                 $jScore = $comment->data->score;
                 $jAuthor = $comment->data->author;
-                $jContent = $comment->data->body;
+                $jBody = $comment->data->body;
                 $jCreated = gmdate("d-m-Y h:m", $comment->data->created_utc);
                 $jReplies = $comment->data->replies != "" ? $comment->data->replies->data->children : null;
                 if(is_array($jReplies) && count($jReplies)>0){
@@ -150,19 +127,20 @@ class Redditer {
                     $jNumReplies = 0;
                 }
                 $this->mCommentsList[] = new RedditComment(
-                    $jAwards, $jScore, $jNumReplies, $jAuthor, $jContent, $jCreated);     
-            }
+                    $jAwards, $jScore, $jNumReplies, $jAuthor, $jBody, $jCreated);     
+            }// if
         }// foreach
     }// extract_comment
 
-    private function frequency_map($pParam){
-        $frequencyMap = array();
-        foreach ($this->mPostsList as $post) {
-            $titleAsArray = explode(" ", $post->$pParam);
-            $frequencyMap = array_merge($frequencyMap, array_count_values($titleAsArray));
+    private function frequency_map($pList, $pParam, $pMapSize){
+        $strings = array();
+        foreach ($pList as $element) {
+            $stringAsArray = explode(" ", $element->$pParam);
+            $strings = array_merge($strings, $stringAsArray);
         }
+        $frequencyMap = array_count_values($strings);
         arsort($frequencyMap);
-        return $frequencyMap;
+        return array_slice($frequencyMap, 0, $pMapSize);
     }// frequency_map
 
     private function find_most_awarded_comment($pArrayComments){
@@ -194,9 +172,9 @@ class Redditer {
         }
         return $pTitle;
     }// build_title
-}// redditer
+}// Redditer
 
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 20);
-$json = $r->mHttpHelper->http($r->build_query())[HttpHelper::KEY_BIN];
-$oJson = json_decode($json);
-$r->get_posts($oJson, 20);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
+$json = $r->get_json();
+$r->get_posts($json, 50);
+//$r->get_statistics();
