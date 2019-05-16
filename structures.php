@@ -27,13 +27,14 @@ class RedditPost {
     public $contentUrl;
     public $created;
     public $thumbnail;
+    public $subreddit;
     public $comments = array(
         'upvoted'=>false,
         'controversial'=>false,
         'awarded'=>false
     );
 
-    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated, $pThumbnail){
+    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated, $pThumbnail, $pSubreddit){
         $this->title = $pTitle;
         $this->body = $pBody;
         $this->score = $pScore;
@@ -43,6 +44,7 @@ class RedditPost {
         $this->contentUrl = $pContentUrl;
         $this->created = $pCreated;
         $this->thumbnail = $pThumbnail;
+        $this->subreddit = $pSubreddit;
     }
 
     public function set_comments($pMostUpvoted, $pMostControversial, $pMostAwarded){

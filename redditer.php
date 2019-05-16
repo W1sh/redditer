@@ -48,13 +48,9 @@ class Redditer {
         }
     }// build_query
 
-    public function get_posts($pJson, $pNumPosts){
+    public function get_posts($pJson){
         $posts = $pJson->data->children;
-        $jAfter = $pJson->data->after;
-        $count = $pNumPosts;
         foreach ($posts as $post){
-            $count = $count -1;
-            if($pNumPosts < 0) break;
             $redditPost = $this->extract_post($post);
 
             $jPostUrl = substr($redditPost->contentUrl, 0, -1).".json";
@@ -68,12 +64,9 @@ class Redditer {
             $mostAwarded = $this->find_most_awarded_comment($this->mCommentsList);
 
             $redditPost->set_comments($mostUpvoted, $mostControversial, $mostAwarded);
+            $this->mCommentsList = array(); // need to clear due to performance issues
             $this->mPostsList[] = $redditPost;
         }// foreach
-        if($count > 0){
-            $this->mQuery['after'] = $jAfter;
-            $this->get_posts($this->build_query(), $count);
-        }// if
         return $this->mPostsList;
     }// get_posts
 
@@ -105,10 +98,11 @@ class Redditer {
         $jOver18 = $pJson->data->over_18;
         $jSpoiler = $pJson->data->spoiler;
         $jThumbnail = $pJson->data->thumbnail;
+        $jSubreddit = $pJson->data->subreddit_name_prefixed;
         $jCreated = gmdate("d-m-Y h:m", $pJson->data->created_utc); 
-        $builtTitle = $this->build_title($jTitle, $jOver18, $jSpoiler);
+        $builtTitle = $this->build_title($jTitle, $jSubreddit, $jOver18, $jSpoiler);
         return new RedditPost(
-            $builtTitle, $jBody, $jScore, $jAuthor, $jAwards, $jPostUrl, $jContentUrl, $jCreated, $jThumbnail);
+            $builtTitle, $jBody, $jScore, $jAuthor, $jAwards, $jPostUrl, $jContentUrl, $jCreated, $jThumbnail, $jSubreddit);
     }// extract_json
 
     private $mCommentsList = array();
@@ -165,17 +159,20 @@ class Redditer {
         return $pArrayComments[0];
     }// find_most_upvoted_comment
 
-    private function build_title($pTitle, $pOver18=false, $pSpoiler=false) : string{
+    private function build_title($pTitle, $pSubreddit, $pOver18=false, $pSpoiler=false) : string{
         if($pSpoiler && $pOver18){
-            return sprintf("(%s | %s) %s", $pOver18, $pSpoiler, $pTitle);
+            return sprintf("(%s | %s) (%s) %s", $pOver18, $pSpoiler, $pSubreddit, $pTitle);
         }else if($pSpoiler || $pOver18){
-            return sprintf("(%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pTitle);
+            return sprintf("(%s) (%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pSubreddit, $pTitle);
         }
         return $pTitle;
     }// build_title
 }// Redditer
-/* ISTO ERA O PROBLEMA
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
+
+$start = microtime(true);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 10);
 $json = $r->get_json();
-$r->get_posts($json, 50);*/
+$r->get_posts($json);
+$time_elapsed_secs = microtime(true) - $start;
+echo $time_elapsed_secs;
 //$r->get_statistics();
