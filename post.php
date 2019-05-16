@@ -41,7 +41,7 @@ class Post {
             'most_awarded'=>$this->best_comment_by_param("awards")
         );
         return $result;     
-    }
+    }// comments_statistics
 
     public function engagement_statistics() : array{
         $redditors = $this->redditors_frequency_map();
@@ -68,14 +68,14 @@ class Post {
             'most_awarded'=>array_slice($totalAwardsRedditors, 0, 1)
         );
         return $result;
-    }
+    }// engagement_statistics
 
     private function best_comment_by_param($pParam){
         usort($this->comments['all'], function ($a, $b) use ($pParam){
             return ($a->$pParam > $b->$pParam) ? -1 : 1;
         });
         return $this->comments['all'][0];
-    }
+    }// best_comment_by_param
 
     private function filter_by_redditor($pRedditor){
         return array_filter($this->comments['all'], function ($item) use ($pRedditor){

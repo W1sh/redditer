@@ -39,6 +39,34 @@ class Redditer {
         $this->mHttpHelper = new HttpHelper("Redditer v1.0");
     }// __construct
 
+    public function set_subreddit($pSubreddit){
+        $this->mQuery['subreddit'] = $pSubreddit;
+    }// set_subreddit
+
+    public function set_category($pCategory){
+        if($pCategory instanceof Category){
+            $this->mQuery['category'] = $pCategory;
+            return true;
+        }
+        return false;
+    }// set_category
+
+    public function set_time($pTime){
+        if($pTime instanceof Time){
+            $this->mQuery['time'] = $pTime;
+            return true;
+        }
+        return false;
+    }// set_time
+
+    public function set_limit($pLimit){
+        if($pLimit > 0){
+            $this->mQuery['limit'] = $pLimit;
+            return true;
+        }
+        return false;
+    }// set_limit
+
     public function get_json($pUrl=false){
         if($pUrl == false){
             $pUrl = $this->build_query();
