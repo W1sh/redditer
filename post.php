@@ -37,34 +37,30 @@ class Post {
 
     public function set_comments($pCommentList){
         $this->comments['all'] = $pCommentList;
-        $this->comments['upvoted'] = $this->most_upvoted_comment();
-        $this->comments['controversial'] = $this->most_controversial_comment();
-        $this->comments['awarded'] = $this->most_awarded_comment();
+        $this->comments['upvoted'] = $this->best_comment_by_param("score");
+        print_r($this->comments['upvoted']);
+        $this->comments['controversial'] = $this->best_comment_by_param("replies");
+        print_r($this->comments['controversial']);
+        $this->comments['awarded'] = $this->best_comment_by_param("awards");
+        print_r($this->comments['awarded']);
+        print_r($this->most_engaged_redditor());
     }// set_comments
 
-    private function most_awarded_comment(){
-        usort($this->comments['all'], function ($a, $b){
-            return ($a->awards > $b->awards) ? -1 : 1;
+    private function best_comment_by_param($pParam){
+        usort($this->comments['all'], function ($a, $b) use ($pParam){
+            return ($a->$pParam > $b->$pParam) ? -1 : 1;
         });
         return $this->comments['all'][0];
-    }// find_most_awarded_comment
-
-    private function most_controversial_comment(){
-        usort($this->comments['all'], function ($a, $b){
-            return ($a->replies > $b->replies) ? -1 : 1;
-        });
-        return $this->comments['all'][0];
-    }// find_most_controversial_comment
-
-    private function most_upvoted_comment(){
-        usort($this->comments['all'], function ($a, $b){
-            return ($a->score > $b->score) ? -1 : 1;
-        });
-        return $this->comments['all'][0];
-    }// find_most_upvoted_comment
+    }
 
     private function most_engaged_redditor(){
-
+        $redditors = array();
+        foreach ($this->comments['all'] as $comment) {
+            $redditors[] = $comment->author;
+        }
+        $frequencyMap = array_count_values($redditors);
+        arsort($frequencyMap);
+        return array_slice($frequencyMap, 0, 1);
     }// most_engaged_redditor
 
     private function most_liked_redditor(){
@@ -74,6 +70,22 @@ class Post {
     private function most_awarded_redditor(){
         
     }// most_awarded_redditor
+
+    /*private function filter_by_redditor($pRedditor){
+        return array_filter($this->comments['all'], function ($item) use ($pRedditor){
+            return $item->author = $pRedditor;
+        }, ARRAY_FILTER_USE_KEY);
+    }*/
+
+    private function frequency_map($pList, $pParam, $pMapSize){
+        $redditors = array();
+        foreach ($pList as $element) {
+            $redditors[] = $element->author;
+        }
+        $frequencyMap = array_count_values($redditors);
+        arsort($frequencyMap);
+        return array_slice($frequencyMap, 0, $pMapSize);
+    }// frequency_map
 
     private function build_title($pTitle, $pSubreddit, $pOver18=false, $pSpoiler=false) : string{
         if($pSpoiler && $pOver18){

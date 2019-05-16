@@ -106,7 +106,7 @@ class Redditer {
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 5);
 $json = $r->get_json();
 $r->get_posts($json);
 $time_elapsed_secs = microtime(true) - $start;
