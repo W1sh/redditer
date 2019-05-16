@@ -1,6 +1,8 @@
 <?php
+
 require_once "./vendor/autoload.php";
 require_once "structures.php";
+require_once "post.php";
 
 use am\internet\HttpHelper;
 
@@ -33,32 +35,25 @@ class Redditer {
         $this->mQuery['time'] = $pTime;
         $this->mQuery['after'] = $pAfter;
         $this->mQuery['limit'] = $pLimit;
-        $this->mHttpHelper = new HttpHelper(HttpHelper::USER_AGENT_STRING_MOZ47);
+        $this->mHttpHelper = new HttpHelper("Redditer v1.0");
     }// __construct
 
-    private function build_query() {
-        $formattedURL = sprintf(self::REDDIT_SEARCH_BASE,
-            $this->mQuery['subreddit'],
-            $this->mQuery['category'],
-            $this->mQuery['time'],
-            $this->mQuery['limit']);
-        if($this->mQuery['after'] == false){
-            echo $formattedURL.PHP_EOL;
-            return $formattedURL;
-        }else{
-            return $formattedURL."&after=".$this->mQuery['after'];
+    public function get_json($pUrl=false){
+        if($pUrl == false){
+            $pUrl = $this->build_query();
         }
-    }// build_query
+        echo $pUrl;
+        $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
+        return json_decode($data);
+    }// get_json
 
     public function get_posts($pJson){
         $posts = $pJson->data->children;
         foreach ($posts as $post){
-            $redditPost = new RedditPost($post->data);
-            $jPostUrl = substr($redditPost->postUrl, 0, -1).".json";
-            echo $jPostUrl.PHP_EOL;
-            $json = $this->get_json_from_url($jPostUrl);
-            $comments = $json[1]->data->children;
-            $this->extract_comments($comments);
+            $redditPost = new Post($post->data);
+            $json = $this->get_json(substr($redditPost->postUrl, 0, -1).".json");
+            $jcomments = $json[1]->data->children;
+            $this->extract_comments($jcomments);
 
             $mostUpvoted = $this->find_most_upvoted_comment($this->mCommentsList);
             $mostControversial = $this->find_most_controversial_comment($this->mCommentsList);
@@ -70,16 +65,6 @@ class Redditer {
         }// foreach
         return $this->mPostsList;
     }// get_posts
-
-    public function get_json() {
-        $jurl = $this->build_query();
-        return $this->get_json_from_url($jurl);
-    }// get_json
-
-    public function get_json_from_url($pUrl) {
-        $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
-        return json_decode($data);
-    }// get_json_from_url
 
     public function get_statistics(){
         var_dump($this->frequency_map($this->mPostsList, "title", 20));
@@ -139,6 +124,16 @@ class Redditer {
         });
         return $pArrayComments[0];
     }// find_most_upvoted_comment
+
+    private function build_query() {
+        $formattedURL = sprintf(self::REDDIT_SEARCH_BASE, $this->mQuery['subreddit'],
+            $this->mQuery['category'], $this->mQuery['time'], $this->mQuery['limit']);
+        if($this->mQuery['after'] == false){
+            return $formattedURL;
+        }else{
+            return $formattedURL."&after=".$this->mQuery['after'];
+        }
+    }// build_query
 }// Redditer
 
 $start = microtime(true);
