@@ -15,6 +15,8 @@ use am\internet\HttpHelper;
 class Redditer {
 
     public $mHttpHelper;
+    private $mPostsList = array();
+    private $mCommentsList = array();
     private $mQuery = array(
         'subreddit'=>false,
         'category'=>Category::cHot,
@@ -51,9 +53,8 @@ class Redditer {
     public function get_posts($pJson){
         $posts = $pJson->data->children;
         foreach ($posts as $post){
-            $redditPost = $this->extract_post($post);
-
-            $jPostUrl = substr($redditPost->contentUrl, 0, -1).".json";
+            $redditPost = new RedditPost($post->data);
+            $jPostUrl = substr($redditPost->postUrl, 0, -1).".json";
             echo $jPostUrl.PHP_EOL;
             $json = $this->get_json_from_url($jPostUrl);
             $comments = $json[1]->data->children;
@@ -86,26 +87,6 @@ class Redditer {
         var_dump($this->frequency_map($this->mCommentsList, "body", 20));
     }// get_statistics
 
-    private $mPostsList = array();
-    private function extract_post($pJson) {
-        $jTitle = $pJson->data->title;
-        $jBody = $pJson->data->selftext;
-        $jScore = $pJson->data->score;
-        $jAwards = $pJson->data->total_awards_received;
-        $jAuthor = $pJson->data->author;
-        $jContentUrl = "https://www.reddit.com".$pJson->data->permalink;
-        $jPostUrl = $pJson->data->url;
-        $jOver18 = $pJson->data->over_18;
-        $jSpoiler = $pJson->data->spoiler;
-        $jThumbnail = $pJson->data->thumbnail;
-        $jSubreddit = $pJson->data->subreddit_name_prefixed;
-        $jCreated = gmdate("d-m-Y h:m", $pJson->data->created_utc); 
-        $builtTitle = $this->build_title($jTitle, $jSubreddit, $jOver18, $jSpoiler);
-        return new RedditPost(
-            $builtTitle, $jBody, $jScore, $jAuthor, $jAwards, $jPostUrl, $jContentUrl, $jCreated, $jThumbnail, $jSubreddit);
-    }// extract_json
-
-    private $mCommentsList = array();
     private function extract_comments($pJsonComments) {
         foreach ($pJsonComments as $comment){
             if($comment->kind == "t1"){
@@ -158,19 +139,10 @@ class Redditer {
         });
         return $pArrayComments[0];
     }// find_most_upvoted_comment
-
-    private function build_title($pTitle, $pSubreddit, $pOver18=false, $pSpoiler=false) : string{
-        if($pSpoiler && $pOver18){
-            return sprintf("(%s | %s) (%s) %s", $pOver18, $pSpoiler, $pSubreddit, $pTitle);
-        }else if($pSpoiler || $pOver18){
-            return sprintf("(%s) (%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pSubreddit, $pTitle);
-        }
-        return $pTitle;
-    }// build_title
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 10);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
 $json = $r->get_json();
 $r->get_posts($json);
 $time_elapsed_secs = microtime(true) - $start;

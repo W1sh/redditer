@@ -34,17 +34,21 @@ class RedditPost {
         'awarded'=>false
     );
 
-    public function __construct($pTitle, $pBody, $pScore, $pAuthor, $pAwards, $pPostUrl, $pContentUrl, $pCreated, $pThumbnail, $pSubreddit){
-        $this->title = $pTitle;
-        $this->body = $pBody;
-        $this->score = $pScore;
-        $this->author = $pAuthor;
-        $this->awards = $pAwards;
-        $this->postUrl = $pPostUrl;
-        $this->contentUrl = $pContentUrl;
-        $this->created = $pCreated;
-        $this->thumbnail = $pThumbnail;
-        $this->subreddit = $pSubreddit;
+    public function __construct($data){
+        $jOver18 = $data->over_18;
+        $jSpoiler = $data->spoiler;
+        $jTitle = $data->title;
+        $this->title = $data->title;
+        $this->body = $data->selftext;
+        $this->score = $data->score;
+        $this->author = $data->author;
+        $this->awards = $data->total_awards_received;
+        $this->postUrl = "https://www.reddit.com".$data->permalink;
+        $this->contentUrl = $data->url;
+        $this->created = gmdate("d-m-Y h:m", $data->created_utc);
+        $this->thumbnail = $data->thumbnail;
+        $this->subreddit = $data->subreddit_name_prefixed;
+        $this->title = $this->build_title($jTitle, $this->subreddit, $jOver18, $jSpoiler);
     }
 
     public function set_comments($pMostUpvoted, $pMostControversial, $pMostAwarded){
@@ -52,6 +56,15 @@ class RedditPost {
         $this->comments['controversial'] = $pMostControversial;
         $this->comments['awarded'] = $pMostAwarded;
     }
+
+    private function build_title($pTitle, $pSubreddit, $pOver18=false, $pSpoiler=false) : string{
+        if($pSpoiler && $pOver18){
+            return sprintf("(%s | %s) (%s) %s", $pOver18, $pSpoiler, $pSubreddit, $pTitle);
+        }else if($pSpoiler || $pOver18){
+            return sprintf("(%s) (%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pSubreddit, $pTitle);
+        }
+        return $pTitle;
+    }// build_title
 }
 
 class RedditComment {
