@@ -6,7 +6,7 @@ abstract class Category{
     const cControversial = "controversial";
     const cTop = "top";
     const cRising = "rising";
-}
+}// Category
 
 abstract class Time{
     const tHour = "hour";
@@ -15,22 +15,4 @@ abstract class Time{
     const tMonth = "month";
     const tYear = "year";
     const tAll = "all";
-}
-
-class RedditComment {
-    public $awards;
-    public $score;
-    public $replies;
-    public $author;
-    public $body;
-    public $created;
-
-    public function __construct($pAwards, $pScore, $pReplies, $pAuthor, $pBody, $pCreated){
-        $this->awards = $pAwards;
-        $this->score = $pScore;
-        $this->replies = $pReplies;
-        $this->author = $pAuthor;
-        $this->body = $pBody;
-        $this->created = $pCreated;
-    } //__construct
-} // Comment
+}// Time
