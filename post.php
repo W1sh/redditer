@@ -11,12 +11,7 @@ class Post {
     public $created;
     public $thumbnail;
     public $subreddit;
-    public $comments = array(
-        'all'=>array(),
-        'upvoted'=>false,
-        'controversial'=>false,
-        'awarded'=>false
-    );
+    public $comments = array();
 
     public function __construct($data){
         $jOver18 = $data->over_18;
@@ -36,16 +31,44 @@ class Post {
     }// __construct
 
     public function set_comments($pCommentList){
-        $this->comments['all'] = $pCommentList;
-        $this->comments['upvoted'] = $this->best_comment_by_param("score");
-        //print_r($this->comments['upvoted']);
-        $this->comments['controversial'] = $this->best_comment_by_param("replies");
-        //print_r($this->comments['controversial']);
-        $this->comments['awarded'] = $this->best_comment_by_param("awards");
-        //print_r($this->comments['awarded']);
-        //print_r($this->most_engaged_redditor());
-        $this->most_liked_redditor();
+        $this->comments = $pCommentList;
     }// set_comments
+
+    public function comments_statistics() : array{
+        $result = array(
+            'most_liked'=>$this->best_comment_by_param("score"),
+            'most_controversial'=>$this->best_comment_by_param("replies"),
+            'most_awarded'=>$this->best_comment_by_param("awards")
+        );
+        return $result;     
+    }
+
+    public function engagement_statistics() : array{
+        $redditors = $this->redditors_frequency_map();
+        $totalAwardsRedditors = array();
+        $totalScoreRedditors = array();
+        foreach($redditors as $redditor => $frequency){
+            $commentsByRedditor = $this->filter_by_redditor($redditor);
+            $totalAwards = 0;
+            $totalScore = 0;
+            foreach ($commentsByRedditor as $comment){
+                $totalAwards = $totalAwards + $comment->awards;
+                $totalScore = $totalScore + $comment->score;
+            }
+            $totalAwardsRedditors[$redditor] = $totalAwards;
+            $totalScoreRedditors[$redditor] = $totalScore;
+        }
+        arsort($totalAwardsRedditors);
+        arsort($totalScoreRedditors);
+        
+
+        $result = array(
+            'most_engaged'=>array_slice($redditors, 0, 1),
+            'most_liked'=>array_slice($totalScoreRedditors, 0, 1),
+            'most_awarded'=>array_slice($totalAwardsRedditors, 0, 1)
+        );
+        return $result;
+    }
 
     private function best_comment_by_param($pParam){
         usort($this->comments['all'], function ($a, $b) use ($pParam){
@@ -53,30 +76,6 @@ class Post {
         });
         return $this->comments['all'][0];
     }
-
-    private function most_engaged_redditor(){
-        return array_slice($this->redditors_frequency_map(), 0, 1);
-    }// most_engaged_redditor
-
-    private function most_liked_redditor(){
-        $redditors = $this->redditors_frequency_map();
-        $totalScoreRedditor = array();
-        foreach($redditors as $redditor => $frequency){
-            echo $redditor;
-            $commentsByRedditor = $this->filter_by_redditor($redditor);
-            $totalScore = 0;
-            foreach ($commentsByRedditor as $comment){
-                $totalScore = $totalScore + $comment->score;
-            }
-            $totalScoreRedditor[$redditor] = $totalScore;
-        }
-        arsort($totalScoreRedditor);
-        return array_slice($totalScoreRedditor, 0, 1);
-    }// most_liked_redditor
-
-    private function most_awarded_redditor(){
-        
-    }// most_awarded_redditor
 
     private function filter_by_redditor($pRedditor){
         return array_filter($this->comments['all'], function ($item) use ($pRedditor){
