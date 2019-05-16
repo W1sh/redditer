@@ -5,3 +5,4 @@ wordpress/
 composer.lock
 php_errors.log
 cookiejar_rw.txt
+secrets.php
