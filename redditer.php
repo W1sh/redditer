@@ -107,11 +107,11 @@ class Redditer {
             $this->mQuery['after'] = $after;
             $json = $this->get_json();
             $this->get_posts($json);
-        }
+        }// if
         return $this->mPostsList;
     }// get_posts
 
-    public function get_statistics() : string{
+    public function get_statistics() : array{
         if(count($this->mPostsList) == 0){
             return "Failed to evaluate posts. No posts were found.";
         }// if
@@ -123,13 +123,16 @@ class Redditer {
             $totalNumComments = $totalNumComments + $post->numComments;
             $totalAwards = $totalAwards + $post->awards;
         }// foreach
-        print_r(words_frequency_map($this->mPostsList, "title", 30));
-        print_r(words_frequency_map($this->mPostsList, "body", 30));
-        return sprintf("Evaluated %d posts from %s: %d total score, %d comments and %d awards",
-            count($this->mPostsList), $this->mPostsList[0]->subreddit, $totalScore, $totalNumComments, $totalAwards);
-        /*print_r($this->frequency_map($this->mPostsList, "title", 20));
-        print_r($this->frequency_map($this->mPostsList, "body", 20));
-        print_r($this->frequency_map($this->mCommentsList, "body", 20));*/
+        $result = array(
+            'subreddit' => $this->mPostsList[0]->subreddit,
+            'num_posts' => count($this->mPostsList),
+            'total_score' => $totalScore,
+            'total_num_comments' => $totalNumComments,
+            'total_awards' => $totalAwards,
+            'most_used_words_in_title' => words_frequency_map($this->mPostsList, "title", 30),
+            'most_used_words_in_body' => words_frequency_map($this->mPostsList, "body", 30),
+        );// array
+        return $result;
     }// get_statistics
 
     private function extract_comments($pJsonComments) {
@@ -159,10 +162,11 @@ class Redditer {
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 250);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
 $json = $r->get_json();
 $array = $r->get_posts($json);
 $stats = $r->get_statistics();
+$array[0]->engagement_statistics();
 echo $stats;
 $time_elapsed_secs = microtime(true) - $start;
 echo $time_elapsed_secs;
