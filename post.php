@@ -1,5 +1,7 @@
 <?php
 
+// parse to json
+
 class Post {
     public $title;
     public $body;
@@ -11,6 +13,7 @@ class Post {
     public $created;
     public $thumbnail;
     public $subreddit;
+    public $numComments;
     public $comments = array();
 
     public function __construct($data){
@@ -27,6 +30,7 @@ class Post {
         $this->created = gmdate("d-m-Y h:m:s", $data->created_utc);
         $this->thumbnail = $data->thumbnail;
         $this->subreddit = $data->subreddit_name_prefixed;
+        $this->numComments = $data->num_comments;
         $this->title = $this->build_title($jTitle, $this->subreddit, $jOver18, $jSpoiler);
     }// __construct
 
@@ -69,6 +73,10 @@ class Post {
         );
         return $result;
     }// engagement_statistics
+
+    public function as_json($pIsAssoc){
+        return json_encode(self, $pIsAssoc);
+    }// as_json
 
     private function best_comment_by_param($pParam){
         usort($this->comments['all'], function ($a, $b) use ($pParam){

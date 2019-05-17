@@ -8,12 +8,13 @@ require_once "comment.php";
 use am\internet\HttpHelper;
 
 //analisar KEY_ERROR
+// postar estatisticas
 
 // TODO: PERGUNTAR:
 // ferramenta para visualizar estatisticas
-// remover preposições do mapa
 // wordpresser nao encontra am_wordpress_tools DONE
 // wordpresser como funciona thumbnail
+// wordpresser como funciona datetime
 
 class Redditer {
 
@@ -71,7 +72,7 @@ class Redditer {
         if($pUrl == false){
             $pUrl = $this->build_query();
         }
-        echo $pUrl;
+        echo $pUrl.PHP_EOL;
         $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
         return json_decode($data);
     }// get_json
@@ -90,10 +91,23 @@ class Redditer {
         return $this->mPostsList;
     }// get_posts
 
-    public function get_statistics(){
-        print_r($this->frequency_map($this->mPostsList, "title", 20));
+    public function get_statistics() : string{
+        if(count($this->mPostsList) == 0){
+            return "Failed to evaluate posts. No posts were found.";
+        }
+        $totalScore = 0;
+        $totalNumComments = 0;
+        $totalAwards = 0;
+        foreach($this->mPostsList as $post){
+            $totalScore = $totalScore + $post->score;
+            $totalNumComments = $totalNumComments + $post->numComments;
+            $totalAwards = $totalAwards + $post->awards;
+        }// foreach
+        return sprintf("Evaluated %d posts from %s totaling %d score, with %d comments and %d awards received",
+            count($this->mPostsList), $this->mPostsList[0]->subreddit, $totalScore, $totalNumComments, $totalAwards);
+        /*print_r($this->frequency_map($this->mPostsList, "title", 20));
         print_r($this->frequency_map($this->mPostsList, "body", 20));
-        print_r($this->frequency_map($this->mCommentsList, "body", 20));
+        print_r($this->frequency_map($this->mCommentsList, "body", 20));*/
     }// get_statistics
 
     private function extract_comments($pJsonComments) {
@@ -136,7 +150,9 @@ class Redditer {
 $start = microtime(true);
 $r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 5);
 $json = $r->get_json();
-$r->get_posts($json);
+$array = $r->get_posts($json);
+$stats = $r->get_statistics();
+echo $stats;
 $time_elapsed_secs = microtime(true) - $start;
 echo $time_elapsed_secs;
 //$r->get_statistics();
