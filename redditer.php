@@ -4,6 +4,7 @@ require_once "./vendor/autoload.php";
 require_once "structures.php";
 require_once "post.php";
 require_once "comment.php";
+require_once "utils.php";
 
 use am\internet\HttpHelper;
 
@@ -11,10 +12,10 @@ use am\internet\HttpHelper;
 // postar estatisticas
 
 // TODO: PERGUNTAR:
-// ferramenta para visualizar estatisticas
+// ferramenta para visualizar estatisticas GOOGLE PIE CHARTS
 // wordpresser nao encontra am_wordpress_tools DONE
-// wordpresser como funciona thumbnail
-// wordpresser como funciona datetime
+// wordpresser como funciona thumbnail WORDPRESSER_UPLOADBINARY
+// wordpresser como funciona datetime TEM QUE SER IXR_DATE
 
 class Redditer {
 
@@ -48,7 +49,7 @@ class Redditer {
         if($pCategory instanceof Category){
             $this->mQuery['category'] = $pCategory;
             return true;
-        }
+        }// if
         return false;
     }// set_category
 
@@ -56,7 +57,7 @@ class Redditer {
         if($pTime instanceof Time){
             $this->mQuery['time'] = $pTime;
             return true;
-        }
+        }// if
         return false;
     }// set_time
 
@@ -64,16 +65,21 @@ class Redditer {
         if($pLimit > 0){
             $this->mQuery['limit'] = $pLimit;
             return true;
-        }
+        }// if
         return false;
     }// set_limit
 
     public function get_json($pUrl=false){
         if($pUrl == false){
             $pUrl = $this->build_query();
-        }
+        }// if
         echo $pUrl.PHP_EOL;
-        $data = $this->mHttpHelper->http($pUrl)[HttpHelper::KEY_BIN];
+        $result = $this->mHttpHelper->http($pUrl);
+        $data = $result[HttpHelper::KEY_BIN];
+        $status = $result[HttpHelper::KEY_STATUS];
+        if($status['http_code'] != 200){
+            return false;
+        }// if
         return json_decode($data);
     }// get_json
 
@@ -81,12 +87,17 @@ class Redditer {
         $posts = $pJson->data->children;
         foreach ($posts as $post){
             $redditPost = new Post($post->data);
-            $json = $this->get_json(substr($redditPost->postUrl, 0, -1).".json");
-            $jcomments = $json[1]->data->children;
-            $this->extract_comments($jcomments);
-            $redditPost->set_comments($this->mCommentsList);
-            $this->mCommentsList = array(); // need to clear due to performance issues
-            $this->mPostsList[] = $redditPost;
+            $url = substr($redditPost->postUrl, 0, -1).".json";
+            $json = $this->get_json($url);
+            if($json != false){
+                $jcomments = $json[1]->data->children;
+                $this->extract_comments($jcomments);
+                $redditPost->set_comments($this->mCommentsList);
+                $this->mCommentsList = array(); // need to clear due to performance issues
+                $this->mPostsList[] = $redditPost;
+            }else{
+                echo "Failed to retrieve json from url: ".$url.PHP_EOL;
+            }// if
         }// foreach
         return $this->mPostsList;
     }// get_posts
@@ -94,7 +105,7 @@ class Redditer {
     public function get_statistics() : string{
         if(count($this->mPostsList) == 0){
             return "Failed to evaluate posts. No posts were found.";
-        }
+        }// if
         $totalScore = 0;
         $totalNumComments = 0;
         $totalAwards = 0;
@@ -103,7 +114,9 @@ class Redditer {
             $totalNumComments = $totalNumComments + $post->numComments;
             $totalAwards = $totalAwards + $post->awards;
         }// foreach
-        return sprintf("Evaluated %d posts from %s totaling %d score, with %d comments and %d awards received",
+        print_r(words_frequency_map($this->mPostsList, "title", 30));
+        print_r(words_frequency_map($this->mPostsList, "body", 30));
+        return sprintf("Evaluated %d posts from %s: %d total score, %d comments and %d awards",
             count($this->mPostsList), $this->mPostsList[0]->subreddit, $totalScore, $totalNumComments, $totalAwards);
         /*print_r($this->frequency_map($this->mPostsList, "title", 20));
         print_r($this->frequency_map($this->mPostsList, "body", 20));
@@ -125,17 +138,6 @@ class Redditer {
         }// foreach
     }// extract_comment
 
-    private function frequency_map($pList, $pParam, $pMapSize){
-        $strings = array();
-        foreach ($pList as $element) {
-            $stringAsArray = explode(" ", $element->$pParam);
-            $strings = array_merge($strings, $stringAsArray);
-        }
-        $frequencyMap = array_count_values($strings);
-        arsort($frequencyMap);
-        return array_slice($frequencyMap, 0, $pMapSize);
-    }// frequency_map
-
     private function build_query() {
         $formattedURL = sprintf(self::REDDIT_SEARCH_BASE, $this->mQuery['subreddit'],
             $this->mQuery['category'], $this->mQuery['time'], $this->mQuery['limit']);
@@ -148,7 +150,7 @@ class Redditer {
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 5);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 100);
 $json = $r->get_json();
 $array = $r->get_posts($json);
 $stats = $r->get_statistics();

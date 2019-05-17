@@ -19,7 +19,9 @@
             "email": "davidsilvafox@hotmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "rap2hpoutre/remove-stop-words": "^0.2.1"
+    },
 
     "autoload":{
         "psr-4":{
