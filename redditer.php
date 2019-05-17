@@ -85,11 +85,14 @@ class Redditer {
 
     public function get_posts($pJson){
         $posts = $pJson->data->children;
+        $after = $pJson->data->after;
+        $postsCreated = 0;
         foreach ($posts as $post){
             $redditPost = new Post($post->data);
             $url = substr($redditPost->postUrl, 0, -1).".json";
             $json = $this->get_json($url);
             if($json != false){
+                $postsCreated = $postsCreated + 1;
                 $jcomments = $json[1]->data->children;
                 $this->extract_comments($jcomments);
                 $redditPost->set_comments($this->mCommentsList);
@@ -99,6 +102,12 @@ class Redditer {
                 echo "Failed to retrieve json from url: ".$url.PHP_EOL;
             }// if
         }// foreach
+        if($postsCreated < $this->mQuery['limit']){
+            $this->mQuery['limit'] = $this->mQuery['limit'] - $postsCreated;
+            $this->mQuery['after'] = $after;
+            $json = $this->get_json();
+            $this->get_posts($json);
+        }
         return $this->mPostsList;
     }// get_posts
 
@@ -150,7 +159,7 @@ class Redditer {
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 100);
+$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 250);
 $json = $r->get_json();
 $array = $r->get_posts($json);
 $stats = $r->get_statistics();
