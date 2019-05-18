@@ -33,7 +33,7 @@ class Redditer {
 
     const REDDIT_URL = "https://www.reddit.com/";
     const SUBREDDIT_BASE = self::REDDIT_URL."r/%s/%s.json?t=%s&limit=%d";
-    const SUBREDDIT_SEARCH_BASE = self::REDDIT_URL."r/%s/search.json?restrict_sr=1&q=%s&sort=%s&t=%s&include_over_18=%d";
+    const SUBREDDIT_SEARCH_BASE = self::REDDIT_URL."r/%s/search.json?restrict_sr=1&q=%s&sort=%s&t=%s&include_over_18=%d&limit=%s";
 
     public function __construct(){
         $this->mHttpHelper = new HttpHelper("Redditer v1.0");
@@ -82,9 +82,11 @@ class Redditer {
         }// foreach
         if($postsCreated < $this->mQuery['limit']){
             $this->mQuery['limit'] = $this->mQuery['limit'] - $postsCreated;
-            $this->mQuery['after'] = $after;
-            $this->subreddit_build_query();
-            $this->get_posts();
+            if($after != null){
+                $this->mQuery['after'] = $after;
+                $this->subreddit_build_query();
+                $this->get_posts();
+            }//if
         }// if
         return $this->mPostsList;
     }// get_posts
@@ -107,7 +109,7 @@ class Redditer {
     private function subreddit_build_search_query(){
         $query = $this->mQuery;
         $url = sprintf(self::SUBREDDIT_SEARCH_BASE, $query['subreddit'], $query['input'],
-            $query['sort'], $query['time'], $query['over18']);
+            $query['sort'], $query['time'], $query['over18'], $query['limit']);
         $this->mJURL = $query['after'] == false ? $url : $url."&after=".$query['after'];
     }
 
@@ -133,7 +135,10 @@ class Redditer {
 
 $start = microtime(true);
 $r = new Redditer();
-$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 200)->get_posts();
+$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
+echo "NEXT".PHP_EOL;
+$search_array = $r->on_subreddit("apexlegends")->search("pathfinder")->get_posts();
+echo count($search_array);
 $time_elapsed_secs = microtime(true) - $start;
 echo $time_elapsed_secs;
 //$r->get_statistics();
