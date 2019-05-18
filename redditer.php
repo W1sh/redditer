@@ -8,8 +8,11 @@ require_once "utils.php";
 
 use am\internet\HttpHelper;
 
-//analisar KEY_ERROR
-// postar estatisticas
+// TODO: implementar mais estatisticas
+// average post score
+// average post comments
+// average title length ?
+// average post body length
 
 // TODO: PERGUNTAR:
 // ferramenta para visualizar estatisticas GOOGLE PIE CHARTS
@@ -17,75 +20,50 @@ use am\internet\HttpHelper;
 // wordpresser como funciona thumbnail WORDPRESSER_UPLOADBINARY
 // wordpresser como funciona datetime TEM QUE SER IXR_DATE
 
+// TODO: implementar procura no subreddit
+// https://www.reddit.com/r/apexlegends/search/?q=pathfinder&restrict_sr=1&sort=relevance&t=hour&include_over_18=1
+
 class Redditer {
 
-    public $mHttpHelper;
+    private $mHttpHelper;
+    private $mJURL = false;
     private $mPostsList = array();
     private $mCommentsList = array();
-    private $mQuery = array(
-        'subreddit'=>false,
-        'category'=>Category::cHot,
-        'time'=>Time::tDay,
-        'after'=>false,
-        'limit'=>100
-    );
+    private $mQuery = array();
 
-    const REDDIT_SEARCH_BASE = "https://www.reddit.com/r/%s/%s.json?t=%s&limit=%d";
+    const REDDIT_URL = "https://www.reddit.com/";
+    const SUBREDDIT_BASE = self::REDDIT_URL."r/%s/%s.json?t=%s&limit=%d";
+    const SUBREDDIT_SEARCH_BASE = self::REDDIT_URL."r/%s/search.json?restrict_sr=1&q=%s&sort=%s&t=%s&include_over_18=%d";
 
-    public function __construct($pSubreddit, $pCategory, $pTime, $pAfter, $pLimit){
-        $this->mQuery['subreddit'] = $pSubreddit;
-        $this->mQuery['category'] = $pCategory;
-        $this->mQuery['time'] = $pTime;
-        $this->mQuery['after'] = $pAfter;
-        $this->mQuery['limit'] = $pLimit;
+    public function __construct(){
         $this->mHttpHelper = new HttpHelper("Redditer v1.0");
     }// __construct
 
-    public function set_subreddit($pSubreddit){
+    public function on_subreddit($pSubreddit="movies", $pCategory=Category::cHot, $pTime=Time::tDay, $pLimit=100){
+        $this->mPostsList = array();
+        $this->mCommentsList = array();
         $this->mQuery['subreddit'] = $pSubreddit;
-    }// set_subreddit
+        $this->mQuery['category'] = $pCategory;
+        $this->mQuery['time'] = $pTime;
+        $this->mQuery['limit'] = $pLimit;
+        $this->mQuery['after'] = false;
+        return $this;
+    }
 
-    public function set_category($pCategory){
-        if($pCategory instanceof Category){
-            $this->mQuery['category'] = $pCategory;
-            return true;
-        }// if
-        return false;
-    }// set_category
+    public function search($pInput, $pSort="relevance", $pTime=Time::tDay, $pOver18=false){
+        $this->mQuery['input'] = $pInput;
+        $this->mQuery['sort'] = $pSort;
+        $this->mQuery['time'] = $pTime;
+        $this->mQuery['over18'] = $pOver18;
+        $this->subreddit_build_search_query();
+        return $this;
+    }
 
-    public function set_time($pTime){
-        if($pTime instanceof Time){
-            $this->mQuery['time'] = $pTime;
-            return true;
-        }// if
-        return false;
-    }// set_time
-
-    public function set_limit($pLimit){
-        if($pLimit > 0){
-            $this->mQuery['limit'] = $pLimit;
-            return true;
-        }// if
-        return false;
-    }// set_limit
-
-    public function get_json($pUrl=false){
-        if($pUrl == false){
-            $pUrl = $this->build_query();
-        }// if
-        echo $pUrl.PHP_EOL;
-        $result = $this->mHttpHelper->http($pUrl);
-        $data = $result[HttpHelper::KEY_BIN];
-        $status = $result[HttpHelper::KEY_STATUS];
-        if($status['http_code'] != 200){
-            return false;
-        }// if
-        return json_decode($data);
-    }// get_json
-
-    public function get_posts($pJson){
-        $posts = $pJson->data->children;
-        $after = $pJson->data->after;
+    public function get_posts(){
+        if($this->mJURL == false) $this->subreddit_build_query();
+        $json = $this->get_json();
+        $posts = $json->data->children;
+        $after = $json->data->after;
         $postsCreated = 0;
         foreach ($posts as $post){
             $redditPost = new Post($post->data);
@@ -105,35 +83,11 @@ class Redditer {
         if($postsCreated < $this->mQuery['limit']){
             $this->mQuery['limit'] = $this->mQuery['limit'] - $postsCreated;
             $this->mQuery['after'] = $after;
-            $json = $this->get_json();
-            $this->get_posts($json);
+            $this->subreddit_build_query();
+            $this->get_posts();
         }// if
         return $this->mPostsList;
     }// get_posts
-
-    public function get_statistics() : array{
-        if(count($this->mPostsList) == 0){
-            return "Failed to evaluate posts. No posts were found.";
-        }// if
-        $totalScore = 0;
-        $totalNumComments = 0;
-        $totalAwards = 0;
-        foreach($this->mPostsList as $post){
-            $totalScore = $totalScore + $post->score;
-            $totalNumComments = $totalNumComments + $post->numComments;
-            $totalAwards = $totalAwards + $post->awards;
-        }// foreach
-        $result = array(
-            'subreddit' => $this->mPostsList[0]->subreddit,
-            'num_posts' => count($this->mPostsList),
-            'total_score' => $totalScore,
-            'total_num_comments' => $totalNumComments,
-            'total_awards' => $totalAwards,
-            'most_used_words_in_title' => words_frequency_map($this->mPostsList, "title", 30),
-            'most_used_words_in_body' => words_frequency_map($this->mPostsList, "body", 30),
-        );// array
-        return $result;
-    }// get_statistics
 
     private function extract_comments($pJsonComments) {
         foreach ($pJsonComments as $comment){
@@ -150,24 +104,36 @@ class Redditer {
         }// foreach
     }// extract_comment
 
-    private function build_query() {
-        $formattedURL = sprintf(self::REDDIT_SEARCH_BASE, $this->mQuery['subreddit'],
-            $this->mQuery['category'], $this->mQuery['time'], $this->mQuery['limit']);
-        if($this->mQuery['after'] == false){
-            return $formattedURL;
-        }else{
-            return $formattedURL."&after=".$this->mQuery['after'];
-        }
-    }// build_query
+    private function subreddit_build_search_query(){
+        $query = $this->mQuery;
+        $url = sprintf(self::SUBREDDIT_SEARCH_BASE, $query['subreddit'], $query['input'],
+            $query['sort'], $query['time'], $query['over18']);
+        $this->mJURL = $query['after'] == false ? $url : $url."&after=".$query['after'];
+    }
+
+    private function subreddit_build_query(){
+        $query = $this->mQuery;
+        $url = sprintf(self::SUBREDDIT_BASE, $query['subreddit'],
+            $query['category'], $query['time'], $query['limit']);
+        $this->mJURL = $query['after'] == false ? $url : $url."&after=".$query['after'];
+    }
+
+    private function get_json($pUrl=null){
+        $url = $pUrl ?? $this->mJURL;
+        echo $url.PHP_EOL;
+        $result = $this->mHttpHelper->http($url);
+        $data = $result[HttpHelper::KEY_BIN];
+        $status = $result[HttpHelper::KEY_STATUS];
+        if($status['http_code'] != 200){
+            return false;
+        }// if
+        return json_decode($data);
+    }// get_json
 }// Redditer
 
 $start = microtime(true);
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 50);
-$json = $r->get_json();
-$array = $r->get_posts($json);
-$stats = $r->get_statistics();
-$array[0]->engagement_statistics();
-echo $stats;
+$r = new Redditer();
+$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 200)->get_posts();
 $time_elapsed_secs = microtime(true) - $start;
 echo $time_elapsed_secs;
 //$r->get_statistics();

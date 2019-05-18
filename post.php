@@ -1,5 +1,7 @@
 <?php
 
+// get avg comment score
+
 class Post {
     public $title;
     public $body;
@@ -42,7 +44,7 @@ class Post {
             'most_controversial'=>$this->best_comment_by_param("replies"),
             'most_awarded'=>$this->best_comment_by_param("awards"),
             'most_used_words'=>words_frequency_map($this->comments, "body", 30)
-        );
+        );// array
         return $result;     
     }// comments_statistics
 
@@ -93,7 +95,7 @@ class Post {
         $redditors = array();
         foreach ($this->comments as $comment) {
             $redditors[] = $comment->author;
-        }
+        }// foreach
         $frequencyMap = array_count_values($redditors);
         arsort($frequencyMap);
         return $frequencyMap;
@@ -104,7 +106,7 @@ class Post {
             return sprintf("(%s | %s) (%s) %s", $pOver18, $pSpoiler, $pSubreddit, $pTitle);
         }else if($pSpoiler || $pOver18){
             return sprintf("(%s) (%s) %s", ($pOver18 ? $pOver18 : $pSpoiler), $pSubreddit, $pTitle);
-        }
+        }// if
         return $pTitle;
     }// build_title
 }
