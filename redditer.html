@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Redditer - A bot made with the power of friendship</title>
+</head>
+
+<body>
+    <form id="idForm">
+        <fieldset id="idFieldsetForm">
+            <label for="idInputSubreddit">Subreddit: </label>
+            <input type=text placeholder="movies, apexlegends, ..." id="idInputSubreddit">
+            <br>
+            <label for="idSelectCategory">Category: </label>
+            <select name="nameSelectCategory" id="idSelectCategory">
+                <option value="hot">Hot</option>
+                <option value="new">New</option>
+                <option value="top">Top</option>
+                <option value="rising">Rising</option>
+                <option value="controversial">Controversial</option>
+            </select>
+            <br>
+            <label for="idSelectTime">Time: </label>
+            <select name="nameSelectTime" id="idSelectTime">
+                <option value="hour">Last 24 hours</option>
+                <option value="day">Last day</option>
+                <option value="week">Last week</option>
+                <option value="month">Last month</option>
+                <option value="year">Last year</option>
+                <option value="all">All time</option>
+            </select>
+        </fieldset>
+        <hr>
+        <input type="submit" value="Search">
+    </form>
+</body>
+
+</html>
