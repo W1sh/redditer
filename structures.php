@@ -16,3 +16,9 @@ abstract class Time{
     const tYear = "year";
     const tAll = "all";
 }// Time
+
+/*abstract class Type{
+    const user = "user";
+    const subreddit = "sr%2Cuser";
+    const post = "link";
+}*/
