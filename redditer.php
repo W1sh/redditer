@@ -161,7 +161,7 @@ class Redditer {
 
     private function get_json($pUrl=null){
         $url = $pUrl ?? $this->mJURL;
-        echo $url.PHP_EOL;
+        //echo $url.PHP_EOL;
         $result = $this->mHttpHelper->http($url);
         $data = $result[HttpHelper::KEY_BIN];
         $status = $result[HttpHelper::KEY_STATUS];
