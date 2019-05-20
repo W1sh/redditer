@@ -161,7 +161,7 @@ class Redditer {
 
     private function get_json($pUrl=null){
         $url = $pUrl ?? $this->mJURL;
-        echo $url.PHP_EOL;
+        //echo $url.PHP_EOL;
         $result = $this->mHttpHelper->http($url);
         $data = $result[HttpHelper::KEY_BIN];
         $status = $result[HttpHelper::KEY_STATUS];
@@ -172,11 +172,11 @@ class Redditer {
     }// get_json
 }// Redditer
 
-$start = microtime(true);
+/*$start = microtime(true);
 $r = new Redditer();
 //$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
 $search_array = $r->on_reddit()->get_posts();
 echo count($search_array);
 $time_elapsed_secs = microtime(true) - $start;
-echo $time_elapsed_secs;
+echo $time_elapsed_secs;*/
 //$r->get_statistics();
