@@ -11,7 +11,7 @@ require_once "secrets.php";
 
 date_default_timezone_set("Europe/Lisbon");
 define("SECRETS",$SECRETS);
-$BLOG = array("blogname"=>"SUPA ARTIGO 33", "user"=>"admin", "pass"=>"1234", "blogxmlrpc"=>"http://localhost:9000/xmlrpc.php");
+$BLOG = array("blogname"=>"Test", "user"=>"bot", "pass"=>"1234", "blogxmlrpc"=>"http://localhost/work/dai/wordpress/xmlrpc.php");
 define ("BLOG_USER", $BLOG['user']);
 define("BLOG",$BLOG);
 /*
@@ -23,17 +23,28 @@ define("BLOG",$BLOG);
 define ("BLOG_PASS", $BLOG['pass']);
 define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
 function postFromRedditToWordpress($postArray,$quant=-1,$allowComments=true,$allowPings=true){
+   
     if($quant==-1){
         $quant=count($postArray);
     }
     for($i=0;$i<$quant;$i++){  
        $post=$postArray[$i];
-        $text=$post->body."<br><p>Author:".$post->author."<p><br><h4>The most Upvoted Comment</h4>"."<br>"."<h4>The most Awarded Comment</h4>"."<br>"."<h4>The most Controversial Comment</h4>";
-        //$res=wordpress_postToBlog($post->title, $text, "test", "Test",  null, $post->created, $allowComments,$allowPings,BLOG_USER, BLOG_PASS, BLOG_XMLRPC);
-        //echo $res;    
+        $ret = wordpress_postToBlog (
+            $post->title,
+            $post->__toString(),
+            array("Test","Testa"),//$categorias not working
+            $keywordsString = "wordpresser, redditer, bot",
+            $featuredImageId=null,
+            $post->build_Time(),
+            $allowComments,
+            $allowPings,
+            $user=BLOG_USER,
+            $pass=BLOG_PASS,
+            $blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC);
+            
     }
 
-    postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
+    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
     
 }
 function postOnTwitter($conteudo){
@@ -48,8 +59,7 @@ function postOnTwitter($conteudo){
  */
 
 
-$r = new Redditer("apexlegends", Category::cTop, Time::tDay, false, 10);
-$json = $r->get_json();
-$postsList = $r->get_posts($json);
-postFromRedditToWordpress($postsList);
+$r = new Redditer();
+$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
+postFromRedditToWordpress($array, 1);
 //Houve outro problema, o Thumbnail nao esta a ser aceite pelo wordpress_postToBlog
