@@ -36,3 +36,9 @@ function get_statistics($mPostsList) : array{
     );// array
     return $result;
 }// get_statistics
+
+function time_as_days($postedDate){
+    $seconds = time() - $postedDate;
+    $days = floor((($seconds / 60)/60)/24);
+    return $days;
+}
