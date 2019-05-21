@@ -171,12 +171,12 @@ class Redditer {
         return json_decode($data);
     }// get_json
 }// Redditer
-
-/*$start = microtime(true);
+/*
+$start = microtime(true);
 $r = new Redditer();
 //$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
 $search_array = $r->on_reddit()->get_posts();
 echo count($search_array);
 $time_elapsed_secs = microtime(true) - $start;
-echo $time_elapsed_secs;*/
-//$r->get_statistics();
+echo $time_elapsed_secs;
+//$r->get_statistics();*/

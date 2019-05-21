@@ -27,7 +27,7 @@ class Post {
         $this->awards = $data->total_awards_received;
         $this->postUrl = "https://www.reddit.com".$data->permalink;
         $this->contentUrl = $data->url;
-        $this->created = gmdate("d-m-Y h:m:s", $data->created_utc);
+        $this->created = gmdate("Y-m-d-G-i-s", $data->created_utc);
         $this->thumbnail = $data->thumbnail;
         $this->subreddit = $data->subreddit_name_prefixed;
         $this->numComments = $data->num_comments;
@@ -109,4 +109,23 @@ class Post {
         }// if
         return $pTitle;
     }// build_title
+    public function build_Time(){
+        $parts = explode("-", $this->created);
+        $partYear = intval ($parts[0]);
+        $partMonth=intval ($parts[1]);
+        $partDay=intval ($parts[2]);
+        $partHours=intval ($parts[3]);
+        $partMinutes=intval ($parts[4]);
+        $partSeconds=intval ($parts[5]);
+        return mktime($partHours, $partMinutes, $partSeconds, $partMonth, $partDay, $partYear);
+    }
+    public function __toString()
+    {
+        $comments=$this->comments_statistics();
+        return $this->body."<br><p>Posted by: ".$this->author." on ".$this->subreddit." on ".$this->created."</p><br>
+        <h4>The most Upvoted Comment</h4><p>".$comments['most_liked']->__toString()."</p><br>
+        <h4>The most Awarded Comment</h4><p>".$comments['most_awarded']->__toString()."</p><br>
+        <h4>The most Controversial Comment</h4><p>".$comments['most_controversial']->__toString()."</p>";    
+        
+    }
 }
