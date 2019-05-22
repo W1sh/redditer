@@ -37,8 +37,29 @@ function get_statistics($mPostsList) : array{
     return $result;
 }// get_statistics
 
-function time_as_days($postedDate){
+function time_as_pretty_string($postedDate) : string{
     $seconds = time() - $postedDate;
-    $days = floor((($seconds / 60)/60)/24);
-    return $days;
-}
+    if($seconds > 86400){
+        $days = ceil((($seconds / 60)/60)/24);
+        return $days." days ago";
+    }else if($seconds > 3600){
+        $hours = ceil(($seconds / 60)/60);
+        return $hours." hours ago";
+    }else if($seconds > 60){
+        $minutes = ceil($seconds / 60);
+        return $minutes." minutes ago";
+    }
+    return $seconds." seconds ago";
+}// time_as_pretty_string
+
+function build_time($unixTimestamp){
+    $time = gmdate("Y-m-d-G-i-s", $unixTimestamp);
+    $parts = explode("-", $time);
+    $partYear = intval ($parts[0]);
+    $partMonth=intval ($parts[1]);
+    $partDay=intval ($parts[2]);
+    $partHours=intval ($parts[3]);
+    $partMinutes=intval ($parts[4]);
+    $partSeconds=intval ($parts[5]);
+    return mktime($partHours, $partMinutes, $partSeconds, $partMonth, $partDay, $partYear);
+}// build_time

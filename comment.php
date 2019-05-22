@@ -14,11 +14,12 @@ class Comment {
         $this->score = $data->score;
         $this->author = $data->author;
         $this->body = $data->body;
-        $this->created = gmdate("d-m-Y h:m:s", $data->created_utc);
+        $this->created = $data->created_utc;
     }// __construct
-    public function __toString()
-    {
-        return $this->body."<br><p>Author: ".$this->author."<br>Awards: ".$this->awards." - Score: ".$this->score." - Replies: ".$this->replies."</p>";    
-        
-    }
+
+    public function __toString(){
+        return $this->body."<br><p>Posted by <strong>".$this->author."</strong> - "
+            .time_as_pretty_string($this->created)."<br>Awards: ".$this->awards." - Score: "
+            .$this->score." - Replies: ".$this->replies."</p>";    
+    }// __toString
 } // Comment
