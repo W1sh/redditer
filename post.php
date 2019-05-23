@@ -9,9 +9,8 @@ class Post {
     public $author;
     public $awards;
     public $postUrl;
-    public $contentUrl;
+    public $contentUrl = array();
     public $created;
-    public $thumbnail;
     public $subreddit;
     public $numComments;
     public $comments = array();
@@ -26,18 +25,20 @@ class Post {
         $this->author = $data->author;
         $this->awards = $data->total_awards_received;
         $this->postUrl = "https://www.reddit.com".$data->permalink;
+        echo $this->postUrl.PHP_EOL;
         if(strpos($data->post_hint, "video") !== false){
-            $this->contentUrl = $data->media->reddit_video->fallback_url;
+            $this->contentUrl['is_video'] = true;
+            $this->contentUrl['url'] = $data->media->reddit_video->fallback_url;
         }else{
-            $this->contentUrl = $data->url;
+            if($data->thumbnail != "self"){
+                $this->contentUrl['is_video'] = false;
+                $this->contentUrl['url'] = str_replace("amp;", "", $data->preview->images[0]->source->url);
+            }else{
+                $this->contentUrl['is_video'] = false;
+                $this->contentUrl['url'] = false;
+            }
         }
-        //$this->created = gmdate("Y-m-d-G-i-s", $data->created_utc);
         $this->created = $data->created_utc;
-        if($data->thumbnail != "self"){
-            $this->thumbnail = str_replace("amp;", "", $data->preview->images[0]->source->url);
-        }else{
-            $this->thumbnail = false;
-        }
         $this->subreddit = $data->subreddit_name_prefixed;
         $this->numComments = $data->num_comments;
         $this->title = $this->build_title($jTitle, $this->subreddit, $jOver18, $jSpoiler);
@@ -122,10 +123,15 @@ class Post {
    
     public function __toString(){
         $comments=$this->comments_statistics();
-        return $this->body."<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
-            " - ".time_as_pretty_string($this->created)."</p><br><br>
-        <h4>The most Upvoted Comment</h4><p>".$comments['most_liked']->__toString()."</p><br>
-        <h4>The most Awarded Comment</h4><p>".$comments['most_awarded']->__toString()."</p><br>
-        <h4>The most Controversial Comment</h4><p>".$comments['most_controversial']->__toString()."</p>";    
+        $string = "<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
+        " - ".time_as_pretty_string($this->created);
+        if($this->contentUrl)
+        $string .= $this->contentUrl['is_video'] ? "</p><video width=\"100%\" height=\"auto\" controls><source src="
+        .$this->contentUrl['url']." type=\"video/mp4\"></video>" : "";
+        $string .= $this->body."<br><br>";
+        $string .= "<h4>The most Upvoted Comment</h4><p>".$comments['most_liked']->__toString()."</p><br>";
+        $string .= "<h4>The most Awarded Comment</h4><p>".$comments['most_awarded']->__toString()."</p><br>";
+        $string .= "<h4>The most Controversial Comment</h4><p>".$comments['most_controversial']->__toString()."</p>";
+        return $string;
     }// __toString
 }

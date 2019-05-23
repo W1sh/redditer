@@ -29,26 +29,26 @@ function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true)
 
 function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
     $helper = new HttpHelper();
-    $bReachableUrl = $helper->isUrlReachable($post->contentUrl);
-    echo PHP_EOL.$post->postUrl.PHP_EOL;
+    $bReachableUrl = $helper->isUrlReachable($post->contentUrl['url']);
     if($bReachableUrl){
-        $filename = download_thumbnail($post->contentUrl, "temp001");
+        $filename = download_thumbnail($post->contentUrl['url'], "temp001");
         $data = wordpress_uploadBinary(__DIR__."/".$filename,BLOG_USER,BLOG_PASS,BLOG_XMLRPC);
-        echo PHP_EOL."DATA".PHP_EOL;
-        print_r($data);
-        echo PHP_EOL."DATA".PHP_EOL;
-        $ret = wordpress_postToBlog (
-            $post->title,
-            "<video width=\"100%\" height=\"auto\" controls><source src=".$data['url']." type=\"video/mp4\"></video>".$post->__toString(),
-            array("Test","Testa"),//$categorias not working
-            $keywordsString = "wordpresser, redditer, bot",
-            $featuredImageId=null,
-            build_time($post->created),
+        $bHasVideo = strcasecmp($data['type'], "video/mp4")===0;
+        if($bHasVideo){
+            $post->contentUrl['url'] = $data['url'];
+        }
+        wordpress_postToBlog (
+            $post->title,    // title
+            $post->__toString(),    // body
+            array("Test","Testa"),    // categorias (not working)
+            "wordpresser, redditer, bot",    // keywords
+            $post->contentUrl['is_video'] == false ? $post->contentUrl['url'] : null,    // featuredImageId
+            build_time($post->created),    // date_created
             $allowComments,
             $allowPings,
-            $user=BLOG_USER,
-            $pass=BLOG_PASS,
-            $blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC);           
+            BLOG_USER,    // user
+            BLOG_PASS,    // pass
+            BLOG_XMLRPC);    // xmlrpc 
     }
     unlink(__DIR__."/".$filename);// destroy temp image file
     //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
