@@ -26,7 +26,11 @@ class Post {
         $this->author = $data->author;
         $this->awards = $data->total_awards_received;
         $this->postUrl = "https://www.reddit.com".$data->permalink;
-        $this->contentUrl = $data->url;
+        if(strpos($data->post_hint, "video") !== false){
+            $this->contentUrl = $data->media->reddit_video->fallback_url;
+        }else{
+            $this->contentUrl = $data->url;
+        }
         //$this->created = gmdate("Y-m-d-G-i-s", $data->created_utc);
         $this->created = $data->created_utc;
         if($data->thumbnail != "self"){
@@ -74,7 +78,8 @@ class Post {
         $result = array(
             'most_engaged'=>array_slice($redditors, 0, 1),
             'most_liked'=>array_slice($totalScoreRedditors, 0, 1),
-            'most_awarded'=>array_slice($totalAwardsRedditors, 0, 1)
+            'most_awarded'=>array_slice($totalAwardsRedditors, 0, 1),
+            'avg_likes'=>array_slice($totalScoreRedditors, 0, 1)/count($totalScoreRedditors)
         );// array
         return $result;
     }// engagement_statistics
