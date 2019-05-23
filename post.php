@@ -29,7 +29,11 @@ class Post {
         $this->contentUrl = $data->url;
         //$this->created = gmdate("Y-m-d-G-i-s", $data->created_utc);
         $this->created = $data->created_utc;
-        $this->thumbnail = $data->thumbnail;
+        if($data->thumbnail != "self"){
+            $this->thumbnail = str_replace("amp;", "", $data->preview->images[0]->source->url);
+        }else{
+            $this->thumbnail = false;
+        }
         $this->subreddit = $data->subreddit_name_prefixed;
         $this->numComments = $data->num_comments;
         $this->title = $this->build_title($jTitle, $this->subreddit, $jOver18, $jSpoiler);
@@ -114,10 +118,9 @@ class Post {
     public function __toString(){
         $comments=$this->comments_statistics();
         return $this->body."<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
-            " - ".time_as_pretty_string($this->created)."</p><br>
+            " - ".time_as_pretty_string($this->created)."</p><br><br>
         <h4>The most Upvoted Comment</h4><p>".$comments['most_liked']->__toString()."</p><br>
         <h4>The most Awarded Comment</h4><p>".$comments['most_awarded']->__toString()."</p><br>
         <h4>The most Controversial Comment</h4><p>".$comments['most_controversial']->__toString()."</p>";    
-        
-    }
+    }// __toString
 }

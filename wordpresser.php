@@ -1,4 +1,6 @@
 <?php
+use am\internet\HttpHelper;
+
 //use am\internet\AmTwitterBot;
 
 require_once __DIR__."/vendor/autoload.php";
@@ -30,19 +32,26 @@ function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true)
     }
 }
 
-function post_to_wordpress($post,$allowComments=true,$allowPings=true){
-    $ret = wordpress_postToBlog (
-        $post->title,
-        $post->__toString(),
-        array("Test","Testa"),//$categorias not working
-        $keywordsString = "wordpresser, redditer, bot",
-        $featuredImageId=null,
-        build_time($post->created),
-        $allowComments,
-        $allowPings,
-        $user=BLOG_USER,
-        $pass=BLOG_PASS,
-        $blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC);    
+function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
+    $helper = new HttpHelper();
+    $bReachableUrl = $helper->isUrlReachable($post->thumbnail);
+    if($bReachableUrl){
+        $filename = download_thumbnail($post->thumbnail, "temp001");
+        $data = wordpress_uploadBinary(__DIR__."/".$filename,BLOG_USER,BLOG_PASS,BLOG_XMLRPC);
+        $ret = wordpress_postToBlog (
+            $post->title,
+            $post->__toString(),
+            array("Test","Testa"),//$categorias not working
+            $keywordsString = "wordpresser, redditer, bot",
+            $featuredImageId=$data['id'],
+            build_time($post->created),
+            $allowComments,
+            $allowPings,
+            $user=BLOG_USER,
+            $pass=BLOG_PASS,
+            $blogXmlRpcDotPhpFullUrl=BLOG_XMLRPC);           
+    }
+    unlink(__DIR__."/".$filename);// destroy temp image file
     //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
 }
 function postOnTwitter($conteudo){

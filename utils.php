@@ -1,5 +1,6 @@
 <?php
 use function Rap2hpoutre\RemoveStopWords\remove_stop_words;
+use am\internet\HttpHelper;
 
 function words_frequency_map($pList, $pParam, $pMapSize){
     $aStrings = array();
@@ -63,3 +64,9 @@ function build_time($unixTimestamp){
     $partSeconds=intval ($parts[5]);
     return mktime($partHours, $partMinutes, $partSeconds, $partMonth, $partDay, $partYear);
 }// build_time
+
+function download_thumbnail($pUrl, $pFileName){
+    $helper = new HttpHelper();
+    $ret = $helper->simpleDownloader($pUrl, $pFileName, HttpHelper::DEFAULT_REFERRER, HttpHelper::METHOD_GET);
+    return $ret['filename'];
+}
