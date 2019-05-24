@@ -29,13 +29,16 @@ class Post {
         if(strpos($data->post_hint, "video") !== false){
             $this->contentUrl['is_video'] = true;
             $this->contentUrl['url'] = $data->media->reddit_video->fallback_url;
+            $this->contentUrl['image_id'] = false;
         }else{
             if($data->thumbnail != "self"){
                 $this->contentUrl['is_video'] = false;
                 $this->contentUrl['url'] = str_replace("amp;", "", $data->preview->images[0]->source->url);
+                $this->contentUrl['image_id'] = false;
             }else{
                 $this->contentUrl['is_video'] = false;
                 $this->contentUrl['url'] = false;
+                $this->contentUrl['image_id'] = false;
             }
         }
         $this->created = $data->created_utc;
@@ -124,10 +127,11 @@ class Post {
     public function __toString(){
         $comments=$this->comments_statistics();
         $string = "<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
-        " - ".time_as_pretty_string($this->created);
-        if($this->contentUrl)
-        $string .= $this->contentUrl['is_video'] ? "</p><video width=\"100%\" height=\"auto\" controls><source src="
-        .$this->contentUrl['url']." type=\"video/mp4\"></video>" : "";
+        " - ".time_as_pretty_string($this->created)."</p><br>";
+        if($this->contentUrl){
+            $string .= $this->contentUrl['is_video'] ? "<video width=\"100%\" height=\"auto\" controls><source src="
+                .$this->contentUrl['url']." type=\"video/mp4\"></video>" : "";
+        }
         $string .= $this->body."<br><br>";
         $string .= "<h4>The most Upvoted Comment</h4><p>".$comments['most_liked']->__toString()."</p><br>";
         $string .= "<h4>The most Awarded Comment</h4><p>".$comments['most_awarded']->__toString()."</p><br>";

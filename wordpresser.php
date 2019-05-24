@@ -36,13 +36,15 @@ function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
         $bHasVideo = strcasecmp($data['type'], "video/mp4")===0;
         if($bHasVideo){
             $post->contentUrl['url'] = $data['url'];
+        }else{
+            $post->contentUrl['image_id'] = $data['id'];
         }
         wordpress_postToBlog (
             $post->title,    // title
             $post->__toString(),    // body
             array("Test","Testa"),    // categorias (not working)
             "wordpresser, redditer, bot",    // keywords
-            $post->contentUrl['is_video'] == false ? $post->contentUrl['url'] : null,    // featuredImageId
+            $post->contentUrl['is_video'] == false ? $post->contentUrl['image_id'] : null,    // featuredImageId
             build_time($post->created),    // date_created
             $allowComments,
             $allowPings,
@@ -62,4 +64,6 @@ function postOnTwitter($conteudo){
 
 $r = new Redditer();
 $array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
-post_to_wordpress($array[3]);
+post_multiple_to_wordpress($array);
+//$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
+//var_dump($post);

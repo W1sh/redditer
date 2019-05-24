@@ -15,11 +15,8 @@ use am\internet\HttpHelper;
 
 // TODO: PERGUNTAR:
 // ferramenta para visualizar estatisticas GOOGLE PIE CHARTS
-// wordpresser nao encontra am_wordpress_tools DONE
-// wordpresser como funciona thumbnail WORDPRESSER_UPLOADBINARY
-// wordpresser como funciona datetime TEM QUE SER IXR_DATE
+// wordpresser nao encontra am_wordpress_tools 
 
-// TODO: implementar procura no subreddit
 // https://www.reddit.com/r/apexlegends/search/?q=pathfinder&restrict_sr=1&sort=relevance&t=hour&include_over_18=1
 
 class Redditer {
@@ -74,7 +71,22 @@ class Redditer {
         return $this;
     }// search
 
-    public function get_posts(){
+    public function get_post_from_url($pUrl){
+        $this->evaluate_url($pUrl);
+        $this->get_posts(true);
+        return $this->mPostsList[0];
+    }
+
+    private function evaluate_url($pUrl){
+        $bIsPost = strpos($pUrl, "comments");
+        if($bIsPost){
+            $this->mJURL = substr($pUrl, 0, -1).".json";
+        }else{
+            echo "Invalid URL";
+        }
+    }
+
+    public function get_posts($pIsSinglePost=false){
         if($this->mJURL == false){
             if($this->mQuery['subreddit'] != false){
                 $this->subreddit_build_query();
@@ -83,8 +95,13 @@ class Redditer {
             }
         }
         $json = $this->get_json();
-        $posts = $json->data->children;
-        $after = $json->data->after;
+        if($pIsSinglePost){
+            $posts = $json[0]->data->children;
+            $after = null;
+        }else{
+            $posts = $json->data->children;
+            $after = $json->data->after;
+        }
         $postsCreated = 0;
         foreach ($posts as $post){
             $redditPost = new Post($post->data);
@@ -171,12 +188,3 @@ class Redditer {
         return json_decode($data);
     }// get_json
 }// Redditer
-/*
-$start = microtime(true);
-$r = new Redditer();
-//$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
-$search_array = $r->on_reddit()->get_posts();
-echo count($search_array);
-$time_elapsed_secs = microtime(true) - $start;
-echo $time_elapsed_secs;
-//$r->get_statistics();*/
