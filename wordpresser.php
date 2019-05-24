@@ -26,7 +26,7 @@ function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true)
         echo $post->contentUrl['url'];
         post_to_wordpress($post, $allowComments, $allowPings);
     }
-}
+}// post_multiple_to_wordpress
 
 function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
     $helper = new HttpHelper();
@@ -42,7 +42,7 @@ function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
     wordpress_postToBlog (
         $post->title,    // title
         $post->__toString(),    // body
-        array("reddit", substr($post->subreddit, 2)),    // categorias (not working)
+        array("reddit", substr($post->subreddit, 2)),    // categorias
         "wordpresser, redditer, bot",    // keywords
         $post->contentUrl['is_video'] == false ? $post->contentUrl['image_id'] : null,    // featuredImageId
         build_time($post->created),    // date_created
@@ -51,15 +51,13 @@ function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
         BLOG_USER,    // user
         BLOG_PASS,    // pass
         BLOG_XMLRPC);    // xmlrpc 
+    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
 }
     
-    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
 function postOnTwitter($conteudo){
     //$twitterBot = new AmTwitterBot(SECRETS);
-
     //$twitterBot->postStatusesUpdate($conteudo);
-    
-}
+}// postOnTwitter
 
 $r = new Redditer();
 $array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 4)->get_posts();

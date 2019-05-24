@@ -7,36 +7,92 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Redditer - A bot made with the power of friendship</title>
     <script src="redditer.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="theme/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="theme/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="theme/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"
+        type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link href="theme/css/landing-page.css" rel="stylesheet">
 </head>
 
 <body>
-    <form id="idForm">
-        <fieldset id="idFieldsetForm">
-            <label for="idInputSubreddit">Subreddit: </label>
-            <input type=text placeholder="movies, apexlegends, ..." id="idInputSubreddit">
-            <br>
-            <label for="idSelectCategory">Category: </label>
-            <select name="nameSelectCategory" id="idSelectCategory">
-                <option value="hot">Hot</option>
-                <option value="new">New</option>
-                <option value="top">Top</option>
-                <option value="rising">Rising</option>
-                <option value="controversial">Controversial</option>
-            </select>
-            <br>
-            <label for="idSelectTime">Time: </label>
-            <select name="nameSelectTime" id="idSelectTime">
-                <option value="hour">Last 24 hours</option>
-                <option value="day">Last day</option>
-                <option value="week">Last week</option>
-                <option value="month">Last month</option>
-                <option value="year">Last year</option>
-                <option value="all">All time</option>
-            </select>
-        </fieldset>
-        <hr>
-        <input type="submit" value="Search">
-    </form>
+    <!-- Navigation -->
+    <nav class="navbar navbar-light bg-light static-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Redditer - a reddit to wordpress bot</a>
+        </div>
+    </nav>
+
+    <!-- Masthead -->
+    <header class="masthead text-white text-center">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="col-xl-9 mx-auto">
+                <h1 class="mb-5">Search reddit for the posts you want!</h1>
+            </div>
+            <form id="idForm">
+                <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idInputUrl">Post url: </label>
+                    </div>
+                    <div class="col-8">
+                        <input type=text class="form-control form-control-lg" placeholder="www.reddit.com"
+                            id="idInputUrl">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idInputSubreddit">Subreddit: </label>
+                    </div>
+                    <div class="col-8">
+                        <input type=text class="form-control form-control-lg" placeholder="movies, apexlegends, ..."
+                            id="idInputSubreddit">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idSelectCategory">Category: </label>
+                    </div>
+                    <div class="col-3">
+                        <select class="form-control" name="nameSelectCategory" id="idSelectCategory">
+                            <option value="hot">Hot</option>
+                            <option value="new">New</option>
+                            <option value="top">Top</option>
+                            <option value="rising">Rising</option>
+                            <option value="controversial">Controversial</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idSelectTime">Time: </label>
+                    </div>
+                    <div class="col-3 mb-4">
+                        <select class="form-control" name="nameSelectTime" id="idSelectTime">
+                            <option value="hour">Last 24 hours</option>
+                            <option value="day">Last day</option>
+                            <option value="week">Last week</option>
+                            <option value="month">Last month</option>
+                            <option value="year">Last year</option>
+                            <option value="all">All time</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-block btn-lg btn-primary">Search!</button>
+                    </div>
+                </div>
+        </div>
+        </form>
+        </div>
+    </header>
 </body>
 
 </html>
