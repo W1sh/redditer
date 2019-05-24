@@ -23,38 +23,37 @@ define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
 
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
     foreach($posts as $post){
+        echo $post->contentUrl['url'];
         post_to_wordpress($post, $allowComments, $allowPings);
     }
 }
 
 function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
     $helper = new HttpHelper();
-    $bReachableUrl = $helper->isUrlReachable($post->contentUrl['url']);
+    if($post->contentUrl['is_video'] == false){
+        $bReachableUrl = $helper->isUrlReachable($post->contentUrl['url']);
+    }
     if($bReachableUrl){
         $filename = download_thumbnail($post->contentUrl['url'], "temp001");
         $data = wordpress_uploadBinary(__DIR__."/".$filename,BLOG_USER,BLOG_PASS,BLOG_XMLRPC);
-        $bHasVideo = strcasecmp($data['type'], "video/mp4")===0;
-        if($bHasVideo){
-            $post->contentUrl['url'] = $data['url'];
-        }else{
-            $post->contentUrl['image_id'] = $data['id'];
-        }
-        wordpress_postToBlog (
-            $post->title,    // title
-            $post->__toString(),    // body
-            $post->subreddit,    // categorias (not working)
-            "wordpresser, redditer, bot",    // keywords
-            $post->contentUrl['is_video'] == false ? $post->contentUrl['image_id'] : null,    // featuredImageId
-            build_time($post->created),    // date_created
-            $allowComments,
-            $allowPings,
-            BLOG_USER,    // user
-            BLOG_PASS,    // pass
-            BLOG_XMLRPC);    // xmlrpc 
+        $post->contentUrl['image_id'] = $data['id'];
+        unlink(__DIR__."/".$filename);// destroy temp image file
     }
-    unlink(__DIR__."/".$filename);// destroy temp image file
-    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
+    wordpress_postToBlog (
+        $post->title,    // title
+        $post->__toString(),    // body
+        array("reddit", substr($post->subreddit, 2)),    // categorias (not working)
+        "wordpresser, redditer, bot",    // keywords
+        $post->contentUrl['is_video'] == false ? $post->contentUrl['image_id'] : null,    // featuredImageId
+        build_time($post->created),    // date_created
+        $allowComments,
+        $allowPings,
+        BLOG_USER,    // user
+        BLOG_PASS,    // pass
+        BLOG_XMLRPC);    // xmlrpc 
 }
+    
+    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
 function postOnTwitter($conteudo){
     //$twitterBot = new AmTwitterBot(SECRETS);
 
@@ -63,8 +62,8 @@ function postOnTwitter($conteudo){
 }
 
 $r = new Redditer();
-/*$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 10)->get_posts();
-post_multiple_to_wordpress($array);*/
-$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
-post_to_wordpress($post);
+$array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 4)->get_posts();
+post_multiple_to_wordpress($array);
+/*$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
+post_to_wordpress($post);*/
 //var_dump($post);
