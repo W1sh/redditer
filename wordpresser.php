@@ -60,13 +60,13 @@ function postOnTwitter($conteudo){
     //$twitterBot = new AmTwitterBot(SECRETS);
     //$twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
-function postOnDataBase($posts){
+/*function postOnDataBase($posts){
     $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
     $dB->initDB();
     foreach($posts as $post){
         $dB->input("Post",$post);
     }
-}
+}*/
 $r = new Redditer();
 $array = $r->on_subreddit("AskReddit", Category::cTop, Time::tDay, 4)->get_posts();
 //post_multiple_to_wordpress($array);
