@@ -11,9 +11,6 @@ class Db{
         $this->servername=$servername;
         $this->username=$username;
         $this->password=$password;
-        
-    /* // Create connection
-        $this->conn = new mysqli($this->servername, $this->username, $this->password);*/
     }
     function initDB(){
 
@@ -63,18 +60,7 @@ class Db{
                 
         if ($this->conn->query($sql) === FALSE) {
             echo "COMMENT: Error creating table: " . $this->conn->error."".PHP_EOL;
-        }
-
-    /*   $sql = "CREATE TABLE IF NOT EXISTS Redditors (
-                    RedditorId INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                    Username VARCHAR(30) NOT NULL,
-                    NumberOfPosts INT(6) NOT NULL,
-                    )";
-                    
-        if ($this->conn->query($sql) === FALSE) {
-            echo "Error creating table: " . $this->conn->error;
-        }*/
-            
+        }   
     }
 
     function input($table, $data,$id=null)
@@ -130,48 +116,54 @@ class Db{
         break;
         }
     }  
-    function statistcsSearcher($what,$conditions,$table="",$counting=false, $return=false)
+    function statistcsSearcher($what,$conditions,$table,$counting=false, $return=false)
     {
-        //what is the thing the user wishs to search, where is where it will be searched
+        $format= $sql="SELECT ".$what." FROM ";
+        /*
+        What is the thing the user wishs to search
+        Conditions is an array with conditions
+        table is the name of the table
+        counting enables the return of the number of rows that we got from the select
+        return enables the return of an array with the rows selected
+        */
         $count=0;
         $res=array();
-        switch($table){  
-            case "Posts":
-                foreach($conditions as $condition){
-                    $sql="SELECT ".$what." FROM ".$this->schemaName.".Post WHERE ".$condition;
-                    $result = $this->conn->query($sql);      
-                    while($row = $result->fetch_assoc()) {
-                        if($counting){
-                            $count+=count($row);
-                        }
-                        if($return){
-                            array_push($res,$row);
-                        }
-                    }
-                }
-                break;
-            case"Comments":
-                foreach($conditions as $condition){
-                $sql="SELECT * FROM ".$this->schemaName.".Comments WHERE ".$condition;
-                $result = $this->conn->query($sql);      
-                    while($row = $result->fetch_assoc()) {
-                        if($counting){
-                            $count+=count($row);
-                        }
-                        if($return){
-                            array_push($res,$row);
-                        }
-                    }
-                }
-                break;
-            default:
-            $res = array
-            (
-                'Post'=>$this->statistcsSearcher($what,$conditions,"Post",$counting, $return),
-                'Comments'=>$this->statistcsSearcher($what,$conditions,"Comments",$counting, $return)
-            );
-            break;
+        if($table==""){
+            $format.=$this->schemaName.".Posts INNER JOIN ".$this->schemaName.".Comments";
+            
+        }else{
+            $format.=$this->schemaName.".".$table;
+            echo "Table: ".$table.PHP_EOL;
         }
-        return array($count, $res);
+        if(!empty($conditions)){
+            foreach($conditions as $condition){
+                $sql=$format." WHERE ".$condition;
+                echo $sql;
+                $result = $this->conn->query($sql);      
+                while($row = $result->fetch_assoc()) {
+                    if($counting){
+                        $count++;
+                    }
+                    if($return){
+                        array_push($res,$row);
+                    }
+                }
+            }
+        }else{
+        $result = $this->conn->query($format);      
+            while($row = $result->fetch_assoc()) {
+                if($counting){
+                    $count++;
+                }
+                if($return){
+                    array_push($res,$row);
+                }
+            }
+        }
+        if($counting&&$return||!$counting&&!$return){
+            return $ar=array( 'Result'=>$res,'Count'=>$count);
+        }
+        if($counting) return $count;
+        if($return) return $res;
     }
 }

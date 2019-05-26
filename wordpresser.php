@@ -61,10 +61,11 @@ function postOnTwitter($conteudo){
     //$twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
 
-function searchInDb($type,$data){
+function searchInDb($data, $conditions, $table="", $counting=false, $return=false){
     $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
     $dB->initDB();
-    echo $dB->redditor($data); 
+    var_dump($dB->statistcsSearcher($data, $conditions, $table, $counting, $return)); 
+
 }
 function postOnDataBase($posts){
     $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
@@ -79,5 +80,5 @@ $array = $r->on_subreddit("AskReddit", Category::cTop, Time::tDay, 1)->get_posts
 /*$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
 post_to_wordpress($post);*/
 //postOnDataBase($array);
-searchInDb("Redditor","ChickenTenderDinner");
+searchInDb("*",array("Redditor='ChickenTenderDinner'"),"", true, false);
 //var_dump($post);
