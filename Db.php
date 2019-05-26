@@ -61,7 +61,7 @@ function initDB(){
             reg_date TIMESTAMP,
             FOREIGN KEY (PostId) REFERENCES ".$this->schemaName.".Posts(PostId)
             )";
-            
+            // ' do body quebra a String
     if ($this->conn->query($sql) === FALSE) {
         echo "COMMENT: Error creating table: " . $this->conn->error."".PHP_EOL;
     }
