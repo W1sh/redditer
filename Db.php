@@ -116,9 +116,9 @@ class Db{
         break;
         }
     }  
-    function statistcsSearcher($what,$conditions,$table,$counting=false, $return=false)
-    {
+    function statistcsSearcher($what,$conditions,$table,$counting=false, $return=false){
         $format= $sql="SELECT ".$what." FROM ";
+        $innerJoin=false;
         /*
         What is the thing the user wishs to search
         Conditions is an array with conditions
@@ -130,15 +130,24 @@ class Db{
         $res=array();
         if($table==""){
             $format.=$this->schemaName.".Posts INNER JOIN ".$this->schemaName.".Comments";
-            
+            $innerJoin=true;
         }else{
             $format.=$this->schemaName.".".$table;
             echo "Table: ".$table.PHP_EOL;
         }
         if(!empty($conditions)){
             foreach($conditions as $condition){
-                $sql=$format." WHERE ".$condition;
+                $sql="";
+                if($innerJoin){
+                    $sql=$format." WHERE Posts.".$condition;
+                    $sql.="OR Comments.".$condition;
+                }else{
+                    $sql=$format." WHERE ".$condition;
+                }
                 echo $sql;
+                if ($this->conn->query($sql) === FALSE) {
+                    echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
+                }
                 $result = $this->conn->query($sql);      
                 while($row = $result->fetch_assoc()) {
                     if($counting){
