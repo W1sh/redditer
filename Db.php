@@ -103,9 +103,9 @@ function input($table, $data,$id=null)
         if($id===null){
             return FALSE;
         }
-        $sql = sprintf("INSERT INTO %s.Comments(Awards, Score, Replies, Redditor, Body, Created, PostId) VALUES(
+        $sql = sprintf("INSERT INTO %s.Comments(Awards, Score, Replies, Redditor, Body, Created, PostId, reg_date) VALUES(
         '%s','%s','%s','%s','%s','%s','%s',CURRENT_TIMESTAMP)",$this->schemaName,$data->awards==NULL?NULL:$data->awards,$data->score==NULL?NULL:$data->score,
-        $data->replies==NULL?NULL:$data->replies,$data->author==NULL?NULL:$data->author,$data->created==NULL?NULL:$data->created,
+        $data->replies==NULL?NULL:$data->replies,$data->author==NULL?NULL:$data->author,$data->body==NULL?NULL:$data->body,$data->created==NULL?NULL:$data->created,
         $id);
             /* $sql = sprintf("INSERT INTO %s.Posts(Title, Body, Score, RedditorId, Awards, Created, Subreddit, NumComments,reg_date) VALUES
             ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$data->title,$data->body==NULL?NULL:$data->body,$data->score==NULL?NULL:$data->score,
