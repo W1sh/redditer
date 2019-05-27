@@ -1,6 +1,6 @@
 .idea/
-vendor/
 libs/
+vendor/
 wordpress/
 composer.lock
 php_errors.log

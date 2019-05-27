@@ -7,19 +7,13 @@ require_once __DIR__."/vendor/autoload.php";
 require_once __DIR__."/libs/wordpresser/am_wordpress_tools.php";
 require_once __DIR__."/redditer.php";
 require_once __DIR__."/libs/twitter_bot/AmTwitterBot.php";
-//require_once "secrets.php";
-
-//use wordpresser\am_wordpress_tools;
+require_once "secrets.php";
 
 date_default_timezone_set("Europe/Lisbon");
 
-//define("SECRETS",$SECRETS);
-//$BLOG = array("blogname"=>"Test", "user"=>"bot", "pass"=>"1234", "blogxmlrpc"=>"http://localhost/work/dai/wordpress/xmlrpc.php");
-$BLOG = array("blogname"=>"Test", "user"=>"admin", "pass"=>"1234", "blogxmlrpc"=>"http://localhost:9000/xmlrpc.php");
-
-define ("BLOG_USER", $BLOG['user']);
-define ("BLOG_PASS", $BLOG['pass']);
-define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
+define ("BLOG_USER", $WORDPRESS_SECRETS['user']);
+define ("BLOG_PASS", $WORDPRESS_SECRETS['password']);
+define ("BLOG_XMLRPC", $WORDPRESS_SECRETS['url']."xmlrpc.php");
 
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
     foreach($posts as $post){
@@ -59,8 +53,8 @@ function postOnTwitter($conteudo){
     //$twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
 
-$r = new Redditer();
+/*$r = new Redditer();
 $array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 4)->get_posts();
 post_multiple_to_wordpress($array);
-post_to_wordpress($post);
+post_to_wordpress($post);*/
 //var_dump($post);
