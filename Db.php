@@ -30,15 +30,15 @@ class Db{
         }
 
         $sql = "CREATE TABLE IF NOT EXISTS ".$this->schemaName.".Posts (
-            PostId INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            PostId VARCHAR(10) NOT NULL PRIMARY KEY,
             Title VARCHAR(999) NOT NULL,
-            Body VARCHAR(999) ,
-            Score VARCHAR(50) ,
+            Body VARCHAR(999),
+            Score INT(18),
             Redditor VARCHAR(30) NOT NULL,
-            Awards VARCHAR(50) ,
+            Awards INT(18),
             Created DATETIME NOT NULL,
             Subreddit VARCHAR(50) NOT NULL,
-            NumComments INT(10),
+            NumComments INT(18),
             reg_date TIMESTAMP
             )";    
         if ($this->conn->query($sql) === FALSE) {
@@ -46,14 +46,14 @@ class Db{
         }
 
         $sql = "CREATE TABLE IF NOT EXISTS ".$this->schemaName.".Comments (
-                CommentsId INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                Awards VARCHAR(50),
-                Score VARCHAR(50),
-                Replies INT(6),
+                CommentsId VARCHAR(10) NOT NULL PRIMARY KEY,
+                Awards INT(18),
+                Score INT(18),
+                Replies INT(18),
                 Redditor VARCHAR(30) NOT NULL,
                 Body VARCHAR(999) NOT NULL,
                 Created DATETIME NOT NULL,
-                PostId INT(6) UNSIGNED,
+                PostId VARCHAR(10) NOT NULL,
                 reg_date TIMESTAMP,
                 FOREIGN KEY (PostId) REFERENCES ".$this->schemaName.".Posts(PostId)
                 )";
@@ -65,36 +65,38 @@ class Db{
 
     function input($table, $data,$id=null)
     {
+        $unwanted=array("'","“","”");
         if($data->title!=NULL){
-            $title=str_replace("’","",$data->title);
-            $title=str_replace("'","",$title);
-            //echo "Title: ".$title.PHP_EOL;
+            /*$title=str_replace("'","",$data->title);
+            $title=str_replace("“","\"",$title);
+            $title=str_replace("”","\"",$title);
+            $titleSQL=mysqli_real_escape_string($this->conn, $title);*/
+            $titleSQL=mysqli_real_escape_string($this->conn, $data->title);
+            //FAZER ECHO
         }
         if($data->body!=NULL){
-            $body=str_replace("’","",$data->body);
-            $body=str_replace("'","",$body);
-            //echo "Body: ".$body.PHP_EOL;
+            /*$body=str_replace("'","",$data->body);
+            $body=str_replace("“","\"",$body);
+            $body=str_replace("”","\"",$body);
+            $bodySQL=mysqli_real_escape_string($this->conn, $body);*/
+            $bodySQL=mysqli_real_escape_string($this->conn, $data->body);
+            
         }
         
         switch($table){
             case "Post":
-                $sql = sprintf("INSERT INTO %s.Posts(Title, Body, Score, Redditor, Awards, Created, Subreddit, NumComments,reg_date) VALUES
-                ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$title,$data->body==NULL?NULL:$body,$data->score==NULL?NULL:$data->score,
+                
+                
+                $sql = sprintf("INSERT INTO %s.Posts(PostId, Title, Body, Score, Redditor, Awards, Created, Subreddit, NumComments,reg_date) VALUES
+                ('%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$data->id,$titleSQL,$data->body==NULL?NULL:$bodySQL,$data->score==NULL?NULL:$data->score,
                     $data->author==NULL?NULL:$data->author,$data->awards==NULL?NULL:$data->awards,$data->created==NULL?NULL:$data->created,
                     $data->subreddit==NULL?NULL:$data->subreddit,$data->numComments==NULL?NULL:$data->numComments);
-                
                 if ($this->conn->query($sql) === FALSE) {
-                    echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
+                    echo "INSERT POSTS: Error creating insert: " . $this->conn->error."".PHP_EOL;
                 }
-                $sql="SELECT PostId FROM ".$this->schemaName.".Posts WHERE Title='".$title."'";
-                var_dump($sql);
-                $result = $this->conn->query($sql);
-                $id=0;
-                while($row = $result->fetch_assoc()) {
-                    $id=$row["PostId"];
-                }
+                
                 foreach($data->comments as $comment){
-                    $this->input("Comment",$comment,$id);
+                    $this->input("Comment",$comment,$data->id);
                 }
         break;
 
@@ -102,17 +104,12 @@ class Db{
             if($id===null){
                 return FALSE;
             }
-            $sql = sprintf("INSERT INTO %s.Comments(Awards, Score, Replies, Redditor, Body, Created, PostId, reg_date) VALUES(
-            '%s','%s','%s','%s','%s','%s','%s',CURRENT_TIMESTAMP)",$this->schemaName,$data->awards==NULL?NULL:$data->awards,$data->score==NULL?NULL:$data->score,
-            $data->replies==NULL?NULL:$data->replies,$data->author==NULL?NULL:$data->author,$data->body==NULL?NULL:$body,$data->created==NULL?NULL:$data->created,
+            $sql = sprintf("INSERT INTO %s.Comments(CommentsId, Awards, Score, Replies, Redditor, Body, Created, PostId, reg_date) VALUES(
+            '%s','%s','%s','%s','%s','%s','%s','%s',CURRENT_TIMESTAMP)",$this->schemaName,$data->id,$data->awards==NULL?NULL:$data->awards,$data->score==NULL?NULL:$data->score,
+            $data->replies==NULL?NULL:$data->replies,$data->author==NULL?NULL:$data->author,$data->body==NULL?NULL:$bodySQL,$data->created==NULL?NULL:$data->created,
             $id);
-                /* $sql = sprintf("INSERT INTO %s.Posts(Title, Body, Score, RedditorId, Awards, Created, Subreddit, NumComments,reg_date) VALUES
-                ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$data->title,$data->body==NULL?NULL:$data->body,$data->score==NULL?NULL:$data->score,
-                $data->author==NULL?NULL:$data->author,$data->awards==NULL?NULL:$data->awards,$data->created==NULL?NULL:$data->created,
-                $data->subreddit==NULL?NULL:$data->subreddit,$data->numComments==NULL?NULL:$data->numComments);
-        */ // ' do body quebra a String
             if ($this->conn->query($sql) === FALSE) {
-                    //echo "INSERT COM: Error creating insert: " . $this->conn->error."".PHP_EOL;
+                    echo "INSERT COM: Error creating insert: " . $this->conn->error."".PHP_EOL;
             }
         break;
         }
@@ -120,6 +117,7 @@ class Db{
     function statistcsSearcher($what,$conditions,$table,$counting=false, $return=false){
         $format= $sql="SELECT ".$what." FROM ";
         $innerJoin=false;
+        
         /*
         What is the thing the user wishs to search
         Conditions is an array with conditions
@@ -138,18 +136,17 @@ class Db{
         }
         if(!empty($conditions)){
             foreach($conditions as $condition){
-                $sql="";
                 if($innerJoin){
-                    $sql=$format." WHERE Posts.".$condition;
-                    $sql.="OR Comments.".$condition;
+                    $format.=" WHERE Posts.".$condition;
+                    $format.="OR Comments.".$condition;
                 }else{
-                    $sql=$format." WHERE ".$condition;
+                    $format.=" WHERE ".$condition;
                 }
-                //echo $sql;
-                if ($this->conn->query($sql) === FALSE) {
-                    //echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
+                echo $format;
+                if ($this->conn->query($format) === FALSE) {
+                    echo "SELECT: Error selecting: " . $this->conn->error.";".PHP_EOL;
                 }
-                $result = $this->conn->query($sql);      
+                /*$result = $this->conn->query($format);      
                 while($row = $result->fetch_assoc()) {
                     if($counting){
                         $count++;
@@ -157,9 +154,10 @@ class Db{
                     if($return){
                         array_push($res,$row);
                     }
-                }
+                }*/
             }
-        }else{
+        }
+        echo $format;
         $result = $this->conn->query($format);      
             while($row = $result->fetch_assoc()) {
                 if($counting){
@@ -169,7 +167,7 @@ class Db{
                     array_push($res,$row);
                 }
             }
-        }
+        
         if($counting&&$return||!$counting&&!$return){
             return $ar=array( 'Result'=>$res,'Count'=>$count);
         }
