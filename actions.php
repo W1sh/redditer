@@ -6,7 +6,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 $path_info = $_SERVER['PATH_INFO'];
 $action = explode("/", $path_info)[1];
 $bot = new Redditer();
+$cat="";
+$time="";
+switch($_SERVER['']){
 
+}
+switch($_SERVER['']){
+    
+}
 
 switch ($method){
     case "POST":
