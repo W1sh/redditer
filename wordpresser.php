@@ -58,9 +58,9 @@ function postOnTwitter($conteudo){
     //$twitterBot = new AmTwitterBot(SECRETS);
     //$twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
-
+/*
 $r = new Redditer();
 $array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 4)->get_posts();
 post_multiple_to_wordpress($array);
-post_to_wordpress($post);
+post_to_wordpress($post);*/
 //var_dump($post);
