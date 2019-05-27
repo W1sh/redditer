@@ -22,8 +22,8 @@ function allOk(pObjects) {
 } //allNotNull
 
 function boot() {
-    eleUrlForm = $(ID_FORM);
-    eleParametersForm = $(ID_FORM);
+    eleUrlForm = $(ID_URL_FORM);
+    eleParametersForm = $(ID_PARAMETERS_FORM);
     eleUrl = $(ID_URL);
     eleInputSubreddit = $(ID_INPUT_SUBREDDIT);
     eleSelectCategory = $(ID_SELECT_CATEGORY);
@@ -35,13 +35,20 @@ function boot() {
         alert("There is 1+ object(s) with a problem.");
         return;
     }// if
-    eleForm.onsubmit = sendRequest;
+    console.log("FODASS");
+    eleParametersForm.onsubmit = sendParametersRequest;
+    eleUrlForm.onsubmit = sendURLRequest;
 }// boot
 
-function sendRequest() {
+function sendURLRequest(){
+    console.log("ASHAS");
+    ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm);
+}
+
+function sendParametersRequest(){
+    console.log("OMEGA");
     ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm);
-    return false;
-}// sendRequest
+}
 
 function ajax(pType, pPostUrl, pObjectForm) {
     if (pType == "POST" || pType == "GET") {

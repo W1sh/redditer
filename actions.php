@@ -12,12 +12,13 @@ switch ($method){
         switch($action){
             case "searchSubreddit":
                 $array = $bot->on_subreddit($_REQUEST['Subreddit'], $_REQUEST['nameSelectCategory'], $_REQUEST['nameSelectTime'], 2)->get_posts();
-                var_dump($array);
+                //var_dump($array);
                 echo json_encode($array);
                 break;
             case "searchLink":
-                $array = $r->get_post_from_url($_REQUEST['RedditURL']);
-                var_dump($array);
+                echo $_REQUEST['nameRedditURL'];
+                $array = $bot->get_post_from_url($_REQUEST['nameRedditURL']);
+                //var_dump($array);
                 echo json_encode($array);
                 break;
         }

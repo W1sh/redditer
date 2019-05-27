@@ -82,6 +82,7 @@ class Redditer {
         if($bIsPost){
             $this->mJURL = substr($pUrl, 0, -1).".json";
         }else{
+            echo $pUrl.PHP_EOL;
             echo "Invalid URL";
         }
     }
