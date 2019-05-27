@@ -31,7 +31,7 @@ class Db{
 
         $sql = "CREATE TABLE IF NOT EXISTS ".$this->schemaName.".Posts (
             PostId INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            Title VARCHAR(100) NOT NULL,
+            Title VARCHAR(999) NOT NULL,
             Body VARCHAR(999) ,
             Score VARCHAR(50) ,
             Redditor VARCHAR(30) NOT NULL,
@@ -87,6 +87,7 @@ class Db{
                     echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
                 }
                 $sql="SELECT PostId FROM ".$this->schemaName.".Posts WHERE Title='".$title."'";
+                var_dump($sql);
                 $result = $this->conn->query($sql);
                 $id=0;
                 while($row = $result->fetch_assoc()) {
@@ -111,7 +112,7 @@ class Db{
                 $data->subreddit==NULL?NULL:$data->subreddit,$data->numComments==NULL?NULL:$data->numComments);
         */ // ' do body quebra a String
             if ($this->conn->query($sql) === FALSE) {
-                    echo "INSERT COM: Error creating insert: " . $this->conn->error."".PHP_EOL;
+                    //echo "INSERT COM: Error creating insert: " . $this->conn->error."".PHP_EOL;
             }
         break;
         }
@@ -144,9 +145,9 @@ class Db{
                 }else{
                     $sql=$format." WHERE ".$condition;
                 }
-                echo $sql;
+                //echo $sql;
                 if ($this->conn->query($sql) === FALSE) {
-                    echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
+                    //echo "INSERT POSTS: Error creating table: " . $this->conn->error."".PHP_EOL;
                 }
                 $result = $this->conn->query($sql);      
                 while($row = $result->fetch_assoc()) {
