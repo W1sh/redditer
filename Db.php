@@ -62,25 +62,28 @@ class Db{
             echo "COMMENT: Error creating table: " . $this->conn->error."".PHP_EOL;
         }   
     }
-
+    function banCharacters($unwanted, $string)
+    {
+        foreach($unwanted as $ban){
+            $string=str_replace($ban,"",$string);
+        }
+        return $string;
+    }
     function input($table, $data,$id=null)
     {
-        $unwanted=array("'","“","”");
+        $unwanted=array("'","“","”","’");
         if($data->title!=NULL){
-            /*$title=str_replace("'","",$data->title);
-            $title=str_replace("“","\"",$title);
-            $title=str_replace("”","\"",$title);
-            $titleSQL=mysqli_real_escape_string($this->conn, $title);*/
-            $titleSQL=mysqli_real_escape_string($this->conn, $data->title);
-            //FAZER ECHO
+            $titleSQL = $this->banCharacters($unwanted, $data->title);
+            $titleSQL=mysqli_real_escape_string($this->conn, $titleSQL);
+            echo $titleSQL.PHP_EOL;
         }
         if($data->body!=NULL){
-            /*$body=str_replace("'","",$data->body);
-            $body=str_replace("“","\"",$body);
-            $body=str_replace("”","\"",$body);
-            $bodySQL=mysqli_real_escape_string($this->conn, $body);*/
-            $bodySQL=mysqli_real_escape_string($this->conn, $data->body);
-            
+
+            $bodySQL= $this->banCharacters($unwanted, $data->body);
+           /* $body=str_replace("“","\"",$body);
+            $body=str_replace("”","\"",$body);*/
+            $bodySQL=mysqli_real_escape_string($this->conn, $bodySQL);
+            echo $bodySQL.PHP_EOL;            
         }
         
         switch($table){
