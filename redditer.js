@@ -1,11 +1,12 @@
 window.onload = boot;
 
 var ID_FORM = "idForm",
+    ID_URL="idInputUrl",
     ID_INPUT_SUBREDDIT = "idInputSubreddit",
     ID_SELECT_CATEGORY = "idSelectCategory",
     ID_SELECT_TIME = "idSelectTime";
 
-var eleForm, eleInputSubreddit, eleSelectCategory, eleSelectTime;
+var eleForm, eleUrl, eleInputSubreddit, eleSelectCategory, eleSelectTime;
 var URL_DO_SERVICO = "actions.php";
 
 function $(pId) {
@@ -21,6 +22,7 @@ function allOk(pObjects) {
 
 function boot() {
     eleForm = $(ID_FORM);
+    eleUrl=$(ID_URL)
     eleInputSubreddit = $(ID_INPUT_SUBREDDIT);
     eleSelectCategory = $(ID_SELECT_CATEGORY);
     eleSelectTime = $(ID_SELECT_TIME);

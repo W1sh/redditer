@@ -62,6 +62,5 @@ function postOnTwitter($conteudo){
 $r = new Redditer();
 $array = $r->on_subreddit("apexlegends", Category::cTop, Time::tDay, 4)->get_posts();
 post_multiple_to_wordpress($array);
-/*$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
-post_to_wordpress($post);*/
+post_to_wordpress($post);
 //var_dump($post);
