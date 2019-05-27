@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Redditer - A bot made with the power of friendship</title>
     <script src="redditer.js"></script>
+    <script src="utils.js"></script>
 
     <!-- Bootstrap core CSS -->
     <link href="theme/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -29,6 +30,7 @@
     <nav class="navbar navbar-light bg-light static-top">
         <div class="container">
             <a class="navbar-brand" href="#">Redditer - a reddit to wordpress bot</a>
+            <a class="btn btn-primary" href="config.html">Configure Wordpress</a>
         </div>
     </nav>
 
@@ -37,16 +39,39 @@
         <div class="overlay"></div>
         <div class="container">
             <div class="col-xl-9 mx-auto">
-                <h1 class="mb-5">Search reddit for the posts you want!</h1>
+                <h1 class="mb-5">Get post by url</h1>
             </div>
-            <form id="idForm">
+            <form id="idUrlForm">
                 <div class="form-group row">
                     <div class="col-1 text-left">
                         <label for="idInputUrl">Post url: </label>
                     </div>
                     <div class="col-8">
-                        <input type=text class="form-control form-control-lg" name="RedditURL" placeholder="www.reddit.com"
-                            id="idInputUrl">
+                        <input type=text class="form-control form-control-lg" name="RedditURL"
+                            placeholder="www.reddit.com" id="idInputUrl">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-block btn-lg btn-primary">Search!</button>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <div class="col-xl-9 mx-auto">
+                <h1 class="mb-5">OR</h1>
+            </div>
+            <div class="col-xl-9 mx-auto">
+                <h1 class="mb-5">Get post by given parameters</h1>
+            </div>
+            <form id="idParametersForm">
+                <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idInputUrl">Query: </label>
+                    </div>
+                    <div class="col-8">
+                        <input type=text class="form-control form-control-lg" name="RedditURL"
+                            placeholder="www.reddit.com" id="idInputUrl">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -54,8 +79,8 @@
                         <label for="idInputSubreddit">Subreddit: </label>
                     </div>
                     <div class="col-8">
-                        <input type=text class="form-control form-control-lg" name="Subreddit" placeholder="movies, apexlegends, ..."
-                            id="idInputSubreddit">
+                        <input type=text class="form-control form-control-lg" name="Subreddit"
+                            placeholder="movies, apexlegends, ..." id="idInputSubreddit">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -92,8 +117,7 @@
                         <button type="submit" class="btn btn-block btn-lg btn-primary">Search!</button>
                     </div>
                 </div>
-        </div>
-        </form>
+            </form>
         </div>
     </header>
 </body>

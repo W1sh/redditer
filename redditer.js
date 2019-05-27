@@ -1,12 +1,13 @@
 window.onload = boot;
 
-var ID_FORM = "idForm",
+var ID_URL_FORM = "idUrlForm",
+    ID_PARAMETERS_FORM = "idParametersForm",
     ID_URL="idInputUrl",
     ID_INPUT_SUBREDDIT = "idInputSubreddit",
     ID_SELECT_CATEGORY = "idSelectCategory",
     ID_SELECT_TIME = "idSelectTime";
 
-var eleForm, eleUrl, eleInputSubreddit, eleSelectCategory, eleSelectTime;
+var eleUrlForm, eleUrl, eleParametersForm, eleInputSubreddit, eleSelectCategory, eleSelectTime;
 var URL_DO_SERVICO = "actions.php";
 
 function $(pId) {
@@ -21,13 +22,14 @@ function allOk(pObjects) {
 } //allNotNull
 
 function boot() {
-    eleForm = $(ID_FORM);
-    eleUrl=$(ID_URL)
+    eleUrlForm = $(ID_FORM);
+    eleParametersForm = $(ID_FORM);
+    eleUrl = $(ID_URL);
     eleInputSubreddit = $(ID_INPUT_SUBREDDIT);
     eleSelectCategory = $(ID_SELECT_CATEGORY);
     eleSelectTime = $(ID_SELECT_TIME);
 
-    var objects = [eleForm, eleInputSubreddit, eleSelectCategory, eleSelectTime];
+    var objects = [eleUrlForm, eleUrl, eleInputSubreddit, eleParametersForm, eleSelectCategory, eleSelectTime];
     var bAllOk = allOk(objects);
     if (!bAllOk) {
         alert("There is 1+ object(s) with a problem.");
@@ -37,7 +39,7 @@ function boot() {
 }// boot
 
 function sendRequest() {
-    ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleForm);
+    ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm);
     return false;
 }// sendRequest
 

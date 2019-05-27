@@ -10,17 +10,11 @@ require_once __DIR__."/Db.php";
 require_once __DIR__."/libs/twitter_bot/AmTwitterBot.php";
 require_once "secrets.php";
 
-//use wordpresser\am_wordpress_tools;
-
 date_default_timezone_set("Europe/Lisbon");
 
-define("SECRETS",$SECRETS);
-//$BLOG = array("blogname"=>"Test", "user"=>"bot", "pass"=>"1234", "blogxmlrpc"=>"http://localhost/work/dai/wordpress/xmlrpc.php");
-$BLOG = array("blogname"=>"Test", "user"=>"admin", "pass"=>"1234", "blogxmlrpc"=>"http://localhost:9000/xmlrpc.php");
-
-define ("BLOG_USER", $BLOG['user']);
-define ("BLOG_PASS", $BLOG['pass']);
-define ("BLOG_XMLRPC", $BLOG['blogxmlrpc']);
+define ("BLOG_USER", $WORDPRESS_SECRETS['user']);
+define ("BLOG_PASS", $WORDPRESS_SECRETS['password']);
+define ("BLOG_XMLRPC", $WORDPRESS_SECRETS['url']."xmlrpc.php");
 
 
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
@@ -74,11 +68,12 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
+/*
 $r = new Redditer();
 $array = $r->on_subreddit("AskReddit", Category::cTop, Time::tDay, 1)->get_posts();
 //post_multiple_to_wordpress($array);
 /*$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
-post_to_wordpress($post);*/
+post_to_wordpress($post);
 postOnDataBase($array);
-searchInDb("*",array(),"", true, false);
+searchInDb("*",array(),"", true, false);*/
 //var_dump($post);
