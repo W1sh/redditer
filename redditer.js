@@ -8,10 +8,11 @@ var ID_URL_FORM = "idUrlForm",
     ID_SELECT_CATEGORY = "idSelectCategory",
     ID_SELECT_TIME = "idSelectTime",
     ID_LIMIT = "idInputLimit",
-    ID_BTN_PARAMETERS = "idBtnParameters";
+    ID_BTN_PARAMETERS = "idBtnParameters",
+    ID_SHOWCASE_CONTAINER = "idShowcaseContainer";
 
 var eleUrlForm, eleUrl, eleParametersForm, eleInputSubreddit, eleSelectCategory, eleSelectTime,
-    eleLimit, eleQuery, eleBtnParamters;
+    eleLimit, eleQuery, eleBtnParamters, eleShowcaseContainer;
 var URL_DO_SERVICO = "actions.php";
 
 function $(pId) {
@@ -35,9 +36,10 @@ function boot() {
     eleQuery = $(ID_QUERY);
     eleLimit = $(ID_LIMIT);
     eleBtnParamters = $(ID_BTN_PARAMETERS);
+    eleShowcaseContainer = $(ID_SHOWCASE_CONTAINER);
 
     var objects = [eleUrlForm, eleUrl, eleInputSubreddit, eleParametersForm, eleSelectCategory,
-        eleSelectTime, eleQuery, eleLimit, eleBtnParamters];
+        eleSelectTime, eleQuery, eleLimit, eleBtnParamters, eleShowcaseContainer];
     var bAllOk = allOk(objects);
     if (!bAllOk) {
         alert("There is 1+ object(s) with a problem.");
@@ -50,6 +52,7 @@ function boot() {
 
 function sendURLRequest(){
     ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm);
+    changeBtnState("searching");
     return false;
 }
 
@@ -66,9 +69,15 @@ function ajax(pType, pPostUrl, pObjectForm) {
             oReq.onload = function () {
                 //This is where you handle what to do with the response.
                 //The actual data is found on this.responseText
-                alert("Search completed!");
+                var start = this.responseText.indexOf("[");
+                var json = this.responseText.substr(start);
+                var elementsArray = JSON.parse(json);
+                for (var element of elementsArray){
+                    var title = createTitleWithHyperlink(element.title, element.postUrl);
+                    var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
+                    createShowcaseElement(title, info, element.body);
+                }
                 changeBtnState("success");
-                console.log(this.responseText); //Will alert: 42
             };
             oReq.open(pType, pPostUrl, true);
             var formData = new FormData(pObjectForm);
@@ -93,4 +102,40 @@ function changeBtnState(pState){
             break;
         default: break;
     }
+}
+
+function createShowcaseElement(pTitle, pInfo, pBody){
+    /*<div class="row no-gutters">
+        <div class="col-lg-12 order-lg-1 my-auto showcase-text">
+            <h2> title </h2>
+            <p> Posted by ... </p
+            <p class="lead mb-0"> body </p>
+        </div>
+    </div>*/
+    var row = document.createElement('div');
+    row.className = "row no-gutters";
+    var content = document.createElement('div');
+    content.className = "col-lg-12 order-lg-1 my-auto showcase-text";
+    var title = document.createElement('h2');
+    title.innerHTML = pTitle;
+    var info = document.createElement('p');
+    info.innerHTML = pInfo;
+    var body = document.createElement('p');
+    body.className = "lead mb-0";
+    body.textContent = pBody;
+    content.appendChild(title);
+    content.appendChild(info);
+    content.appendChild(body);
+    row.appendChild(content);
+    eleShowcaseContainer.appendChild(row);
+}
+
+function createInfoSectionString(pAuthor, pSubreddit, pTimePassed){
+    var string = "Posted by <strong>" + pAuthor + "</strong> on " + pSubreddit + " - " + pTimePassed;
+    return string;
+}
+
+function createTitleWithHyperlink(pTitle, pUrl){
+    var string = "<a href=\"" + pUrl + "\">" + pTitle + "</a>";
+    return string;
 }

@@ -12,6 +12,7 @@ class Post {
     public $postUrl;
     public $contentUrl = array();
     public $created;
+    public $timePassed;
     public $subreddit;
     public $numComments;
     public $comments = array();
@@ -43,6 +44,7 @@ class Post {
                 $this->contentUrl['image_id'] = false;
             }
         }
+        $this->timePassed = time_as_pretty_string($data->created_utc);
         $this->created = $data->created_utc;
         $this->subreddit = $data->subreddit_name_prefixed;
         $this->numComments = $data->num_comments;
@@ -129,7 +131,7 @@ class Post {
     public function __toString(){
         $comments=$this->comments_statistics();
         $string = "<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
-        " - ".time_as_pretty_string($this->created)."</p><br>";
+        " - ".$this->timePassed."</p><br>";
         if($this->contentUrl){
             $string .= $this->contentUrl['is_video'] ? "<video width=\"100%\" height=\"auto\" controls><source src="
                 .$this->contentUrl['url']." type=\"video/mp4\"></video>" : "";
