@@ -78,6 +78,7 @@ function ajax(pType, pPostUrl, pObjectForm) {
                     createShowcaseElement(title, info, element.body);
                 }
                 changeBtnState("success");
+                eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
             };
             oReq.open(pType, pPostUrl, true);
             var formData = new FormData(pObjectForm);
@@ -126,6 +127,22 @@ function createShowcaseElement(pTitle, pInfo, pBody){
     content.appendChild(title);
     content.appendChild(info);
     content.appendChild(body);
+    content.appendChild(document.createElement('br'));
+    var wordpressButton = document.createElement('button');
+    wordpressButton.className = "btn btn-info mr-2";
+    wordpressButton.textContent = "Wordpress";
+    var wordpressIcon = document.createElement('i');
+    wordpressIcon.className = "fa fa-wordpress";
+    wordpressButton.appendChild(wordpressIcon);
+    content.appendChild(wordpressButton); 
+    var twitterButton = document.createElement('button');
+    twitterButton.className = "btn btn-info";
+    twitterButton.textContent = "Twitter";
+    var twitterIcon = document.createElement('i');
+    twitterIcon.className = "fa fa-twitter";
+    twitterButton.appendChild(twitterIcon);
+    content.appendChild(document.createElement('span'));
+    content.appendChild(twitterButton);
     row.appendChild(content);
     eleShowcaseContainer.appendChild(row);
 }
