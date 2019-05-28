@@ -3,6 +3,7 @@
 // get avg comment score
 
 class Post {
+    public $id;
     public $title;
     public $body;
     public $score;
@@ -16,6 +17,7 @@ class Post {
     public $comments = array();
 
     public function __construct($data){
+        $this->id = $data->id;
         $jOver18 = $data->over_18;
         $jSpoiler = $data->spoiler;
         $jTitle = $data->title;

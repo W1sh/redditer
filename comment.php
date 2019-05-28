@@ -1,6 +1,7 @@
 <?php
 
 class Comment {
+    public $id;
     public $awards;
     public $score;
     public $replies;
@@ -9,6 +10,7 @@ class Comment {
     public $created;
 
     public function __construct($data, $pNumReplies){
+        $this->id = $data->id;
         $this->replies = $pNumReplies;
         $this->awards = $data->total_awards_received;
         $this->score = $data->score;

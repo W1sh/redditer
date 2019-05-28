@@ -58,7 +58,7 @@ function postOnTwitter($conteudo){
 function searchInDb($data, $conditions, $table="", $counting=false, $return=false){
     $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
     $dB->initDB();
-    var_dump($dB->statistcsSearcher($data, $conditions, $table, $counting, $return)); 
+    echo($dB->statistcsSearcher($data, $conditions, $table, $counting, $return)); 
 
 }
 function postOnDataBase($posts){
