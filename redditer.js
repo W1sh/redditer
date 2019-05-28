@@ -51,39 +51,53 @@ function boot() {
 }// boot
 
 function sendURLRequest(){
-    ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm);
+    ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm, function () {
+        var start = this.responseText.indexOf("[");
+        var json = this.responseText.substr(start);
+        var elementsArray = JSON.parse(json);
+        for (var element of elementsArray){
+            var title = createTitleWithHyperlink(element.title, element.postUrl);
+            var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
+            createShowcaseElement(title, info, element.body);
+        }
+        changeBtnState("success");
+        eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
+    });
     changeBtnState("searching");
     return false;
 }
 
 function sendParametersRequest(){
-    ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm);
+    ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm, function () {
+        var start = this.responseText.indexOf("[");
+        var json = this.responseText.substr(start);
+        var elementsArray = JSON.parse(json);
+        for (var element of elementsArray){
+            var title = createTitleWithHyperlink(element.title, element.postUrl);
+            var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
+            createShowcaseElement(title, info, element.body);
+        }
+        changeBtnState("success");
+        eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
+    });
     changeBtnState("searching");
     return false;
 }
 
-function ajax(pType, pPostUrl, pObjectForm) {
+function ajax(pType, pPostUrl, pObject, pFunction) {
     if (pType == "POST" || pType == "GET") {
         var oReq = new XMLHttpRequest();
         if (oReq) {
-            oReq.onload = function () {
-                //This is where you handle what to do with the response.
-                //The actual data is found on this.responseText
-                var start = this.responseText.indexOf("[");
-                var json = this.responseText.substr(start);
-                var elementsArray = JSON.parse(json);
-                for (var element of elementsArray){
-                    var title = createTitleWithHyperlink(element.title, element.postUrl);
-                    var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
-                    createShowcaseElement(title, info, element.body);
-                }
-                changeBtnState("success");
-                eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
-            };
-            oReq.open(pType, pPostUrl, true);
-            var formData = new FormData(pObjectForm);
-            oReq.send(formData);
-            
+            oReq.onload = pFunction;
+            oReq.open(pType, pPostUrl, true);    
+            var bIsForm = typeof pObject === "object" && pObject.nodeName==="FORM";
+            if (bIsForm){
+                var formData = new FormData(pObject);
+                oReq.send(formData);
+            }else{
+                oReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                oReq.send("purl=" + pObject);
+            }
         } // if
     }else{
         alert("Ajax request type not supported. Must be either GET or POST.");
@@ -130,18 +144,37 @@ function createShowcaseElement(pTitle, pInfo, pBody){
     content.appendChild(document.createElement('br'));
     var wordpressButton = document.createElement('button');
     wordpressButton.className = "btn btn-info mr-2";
-    wordpressButton.textContent = "Wordpress";
+    wordpressButton.textContent = "Wordpress ";
+    wordpressButton.onclick = function(){
+        var postUrl = this.parentElement.childNodes[0].firstChild.href;
+        wordpressButton.className = "btn btn-success mr-2";
+        wordpressButton.textContent = "Posting... ";
+        ajax("POST", URL_DO_SERVICO + "/postToWordpress", postUrl, function () {
+            wordpressButton.className = "btn btn-success mr-2";
+            wordpressButton.textContent = "Posted ";
+            console.log(this.responseText);
+        });
+    };
     var wordpressIcon = document.createElement('i');
     wordpressIcon.className = "fa fa-wordpress";
     wordpressButton.appendChild(wordpressIcon);
     content.appendChild(wordpressButton); 
     var twitterButton = document.createElement('button');
     twitterButton.className = "btn btn-info";
-    twitterButton.textContent = "Twitter";
+    twitterButton.textContent = "Twitter ";
+    twitterButton.onclick = function(){
+        var postUrl = this.parentElement.childNodes[0].firstChild.href;
+        twitterButton.className = "btn btn-success";
+        twitterButton.textContent = "Posting... ";
+        ajax("POST", URL_DO_SERVICO + "/postToTwitter", postUrl, function () {
+            twitterButton.className = "btn btn-success";
+            twitterButton.textContent = "Posted ";
+            console.log(this.responseText);
+        });
+    };
     var twitterIcon = document.createElement('i');
     twitterIcon.className = "fa fa-twitter";
     twitterButton.appendChild(twitterIcon);
-    content.appendChild(document.createElement('span'));
     content.appendChild(twitterButton);
     row.appendChild(content);
     eleShowcaseContainer.appendChild(row);

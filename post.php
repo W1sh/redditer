@@ -28,7 +28,6 @@ class Post {
         $this->author = $data->author;
         $this->awards = $data->total_awards_received;
         $this->postUrl = "https://www.reddit.com".$data->permalink;
-        echo $this->postUrl.PHP_EOL;
         if(strpos($data->post_hint, "video") !== false){
             $this->contentUrl['is_video'] = true;
             $this->contentUrl['url'] = $data->media->reddit_video->fallback_url;

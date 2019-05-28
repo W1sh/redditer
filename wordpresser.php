@@ -16,10 +16,8 @@ define ("BLOG_USER", $WORDPRESS_SECRETS['user']);
 define ("BLOG_PASS", $WORDPRESS_SECRETS['password']);
 define ("BLOG_XMLRPC", $WORDPRESS_SECRETS['url']."xmlrpc.php");
 
-
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
     foreach($posts as $post){
-        echo $post->contentUrl['url'];
         post_to_wordpress($post, $allowComments, $allowPings);
     }
 }// post_multiple_to_wordpress

@@ -1,6 +1,7 @@
 <?php
 
 require_once "redditer.php";
+require_once "wordpresser.php";
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path_info = $_SERVER['PATH_INFO'];
@@ -25,6 +26,13 @@ switch ($method){
                 $array = $bot->get_post_from_url($_REQUEST['nameRedditURL']);
                 //var_dump($array);
                 echo json_encode($array);
+                break;
+            case "postToTwitter":
+                $post = $bot->get_post_from_url($_REQUEST['purl']);
+                echo post_to_wordpress($post);
+                break;
+            case "postToWordpress":
+                echo $_REQUEST['purl'];
                 break;
         }
     break;
