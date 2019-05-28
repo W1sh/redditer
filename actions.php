@@ -11,12 +11,17 @@ switch ($method){
     case "POST":
         switch($action){
             case "searchSubreddit":
-                $array = $bot->on_subreddit($_REQUEST['Subreddit'], $_REQUEST['nameSelectCategory'], $_REQUEST['nameSelectTime'], 2)->get_posts();
+                if($_REQUEST['nameQuery'] != ""){
+                    $array = $bot->on_subreddit($_REQUEST['nameSubreddit'], $_REQUEST['nameSelectCategory'],
+                        $_REQUEST['nameSelectTime'], $_REQUEST['nameLimit'])->search($_REQUEST['nameQuery'])->get_posts();
+                }else{
+                    $array = $bot->on_subreddit($_REQUEST['nameSubreddit'], $_REQUEST['nameSelectCategory'],
+                        $_REQUEST['nameSelectTime'], $_REQUEST['nameLimit'])->get_posts();
+                }
                 //var_dump($array);
                 echo json_encode($array);
                 break;
             case "searchLink":
-                echo $_REQUEST['nameRedditURL'];
                 $array = $bot->get_post_from_url($_REQUEST['nameRedditURL']);
                 //var_dump($array);
                 echo json_encode($array);
