@@ -68,7 +68,7 @@ function postOnDataBase($posts){
     }
 }
 
-$r = new Redditer();
+/*$r = new Redditer();
 $posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 50)->get_posts();
 $stats = get_statistics($posts);
-print_r($stats);
+print_r($stats);*/

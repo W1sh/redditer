@@ -2,6 +2,7 @@
 
 require_once "redditer.php";
 require_once "wordpresser.php";
+require_once "utils.php";
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path_info = $_SERVER['PATH_INFO'];
@@ -19,8 +20,10 @@ switch ($method){
                     $array = $bot->on_subreddit($_REQUEST['nameSubreddit'], $_REQUEST['nameSelectCategory'],
                         $_REQUEST['nameSelectTime'], $_REQUEST['nameLimit'])->get_posts();
                 }
+                $stats = get_statistics($array);
                 //var_dump($array);
                 echo json_encode($array);
+                echo json_encode($stats);
                 break;
             case "searchLink":
                 $array = $bot->get_post_from_url($_REQUEST['nameRedditURL']);
