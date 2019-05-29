@@ -9,6 +9,7 @@ require_once __DIR__."/redditer.php";
 require_once __DIR__."/Db.php";
 require_once __DIR__."/libs/twitter_bot/AmTwitterBot.php";
 require_once "secrets.php";
+require_once "utils.php";
 
 date_default_timezone_set("Europe/Lisbon");
 
@@ -16,10 +17,8 @@ define ("BLOG_USER", $WORDPRESS_SECRETS['user']);
 define ("BLOG_PASS", $WORDPRESS_SECRETS['password']);
 define ("BLOG_XMLRPC", $WORDPRESS_SECRETS['url']."xmlrpc.php");
 
-
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
     foreach($posts as $post){
-        echo $post->contentUrl['url'];
         post_to_wordpress($post, $allowComments, $allowPings);
     }
 }// post_multiple_to_wordpress
@@ -68,12 +67,8 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
-/*
+
 $r = new Redditer();
-$array = $r->on_subreddit("AskReddit", Category::cTop, Time::tDay, 1)->get_posts();
-//post_multiple_to_wordpress($array);
-/*$post = $r->get_post_from_url("https://www.reddit.com/r/factorio/comments/bsf9lh/factorio_is_everywhere_and_its_outstanding/");
-post_to_wordpress($post);
-postOnDataBase($array);
-searchInDb("*",array(),"", true, false);*/
-//var_dump($post);
+$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 50)->get_posts();
+$stats = get_statistics($posts);
+print_r($stats);

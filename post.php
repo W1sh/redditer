@@ -1,7 +1,5 @@
 <?php
 
-// get avg comment score
-
 class Post {
     public $id;
     public $title;
@@ -12,6 +10,7 @@ class Post {
     public $postUrl;
     public $contentUrl = array();
     public $created;
+    public $timePassed;
     public $subreddit;
     public $numComments;
     public $comments = array();
@@ -27,7 +26,6 @@ class Post {
         $this->author = $data->author;
         $this->awards = $data->total_awards_received;
         $this->postUrl = "https://www.reddit.com".$data->permalink;
-        echo $this->postUrl.PHP_EOL;
         if(strpos($data->post_hint, "video") !== false){
             $this->contentUrl['is_video'] = true;
             $this->contentUrl['url'] = $data->media->reddit_video->fallback_url;
@@ -43,6 +41,7 @@ class Post {
                 $this->contentUrl['image_id'] = false;
             }
         }
+        $this->timePassed = time_as_pretty_string($data->created_utc);
         $this->created = $data->created_utc;
         $this->subreddit = $data->subreddit_name_prefixed;
         $this->numComments = $data->num_comments;
@@ -63,33 +62,6 @@ class Post {
         return $result;     
     }// comments_statistics
 
-    public function engagement_statistics() : array{
-        $redditors = $this->redditors_frequency_map();
-        $totalAwardsRedditors = array();
-        $totalScoreRedditors = array();
-        foreach($redditors as $redditor => $frequency){
-            $commentsByRedditor = $this->filter_by_redditor($redditor);
-            $totalAwards = 0;
-            $totalScore = 0;
-            foreach ($commentsByRedditor as $comment){
-                $totalAwards = $totalAwards + $comment->awards;
-                $totalScore = $totalScore + $comment->score;
-            }// foreach
-            $totalAwardsRedditors[$redditor] = $totalAwards;
-            $totalScoreRedditors[$redditor] = $totalScore;
-        }// foreach
-        arsort($totalAwardsRedditors);
-        arsort($totalScoreRedditors);
-        
-        $result = array(
-            'most_engaged'=>array_slice($redditors, 0, 1),
-            'most_liked'=>array_slice($totalScoreRedditors, 0, 1),
-            'most_awarded'=>array_slice($totalAwardsRedditors, 0, 1),
-            'avg_likes'=>array_slice($totalScoreRedditors, 0, 1)/count($totalScoreRedditors)
-        );// array
-        return $result;
-    }// engagement_statistics
-
     public function as_json($pIsAssoc){
         return json_encode(self, $pIsAssoc);
     }// as_json
@@ -100,22 +72,6 @@ class Post {
         });
         return $this->comments[0];
     }// best_comment_by_param
-
-    private function filter_by_redditor($pRedditor){
-        return array_filter($this->comments, function ($item) use ($pRedditor){
-            return $item->author == $pRedditor;
-        });
-    }// filter_by_redditor
-
-    private function redditors_frequency_map(){
-        $redditors = array();
-        foreach ($this->comments as $comment) {
-            $redditors[] = $comment->author;
-        }// foreach
-        $frequencyMap = array_count_values($redditors);
-        arsort($frequencyMap);
-        return $frequencyMap;
-    }// redditors_frequency_map
 
     private function build_title($pTitle, $pSubreddit, $pOver18=false, $pSpoiler=false) : string{
         if($pSpoiler && $pOver18){
@@ -129,7 +85,7 @@ class Post {
     public function __toString(){
         $comments=$this->comments_statistics();
         $string = "<br><p>Posted by <strong>".$this->author."</strong> on ".$this->subreddit.
-        " - ".time_as_pretty_string($this->created)."</p><br>";
+        " - ".$this->timePassed."</p><br>";
         if($this->contentUrl){
             $string .= $this->contentUrl['is_video'] ? "<video width=\"100%\" height=\"auto\" controls><source src="
                 .$this->contentUrl['url']." type=\"video/mp4\"></video>" : "";

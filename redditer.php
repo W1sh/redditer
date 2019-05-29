@@ -82,7 +82,7 @@ class Redditer {
         if($bIsPost){
             $this->mJURL = substr($pUrl, 0, -1).".json";
         }else{
-            echo "Invalid URL";
+            //echo "Invalid URL";
         }
     }
 
@@ -115,7 +115,7 @@ class Redditer {
                 $this->mCommentsList = array(); // need to clear due to performance issues
                 $this->mPostsList[] = $redditPost;
             }else{
-                echo "Failed to retrieve json from url: ".$url.PHP_EOL;
+                //echo "Failed to retrieve json from url: ".$url.PHP_EOL;
             }// if
         }// foreach
         if($postsCreated < $this->mQuery['limit']){

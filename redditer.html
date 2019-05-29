@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Redditer - A bot made with the power of friendship</title>
-    <script src="redditer.js"></script>
-    <script src="utils.js"></script>
 
     <!-- Bootstrap core CSS -->
     <link href="theme/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -22,7 +20,10 @@
         type="text/css">
 
     <!-- Custom styles for this template -->
-    <link href="theme/css/landing-page.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="theme/css/landing-page.min.css" rel="stylesheet">
+    <script src="utils.js"></script>
+    <script src="redditer.js"></script>
 </head>
 
 <body>
@@ -38,40 +39,33 @@
     <header class="masthead text-white text-center">
         <div class="overlay"></div>
         <div class="container">
-            <div class="col-xl-9 mx-auto">
-                <h1 class="mb-5">Get post by url</h1>
-            </div>
-            <form id="idUrlForm">
+            <form id="idUrlForm" method="GET">
                 <div class="form-group row">
                     <div class="col-1 text-left">
                         <label for="idInputUrl">Post url: </label>
                     </div>
                     <div class="col-8">
-                        <input type=text class="form-control form-control-lg" name="RedditURL"
+                        <input type=text class="form-control form-control-lg" name="nameRedditURL"
                             placeholder="www.reddit.com" id="idInputUrl">
                     </div>
                 </div>
+                <br>
                 <div class="form-group row">
                     <div class="col-2">
                         <button type="submit" class="btn btn-block btn-lg btn-primary">Search!</button>
                     </div>
                 </div>
             </form>
-            <br>
             <div class="col-xl-9 mx-auto">
                 <h1 class="mb-5">OR</h1>
-            </div>
-            <div class="col-xl-9 mx-auto">
-                <h1 class="mb-5">Get post by given parameters</h1>
             </div>
             <form id="idParametersForm">
                 <div class="form-group row">
                     <div class="col-1 text-left">
-                        <label for="idInputUrl">Query: </label>
+                        <label for="idInputQuery">Query: </label>
                     </div>
                     <div class="col-8">
-                        <input type=text class="form-control form-control-lg" name="RedditURL"
-                            placeholder="www.reddit.com" id="idInputUrl">
+                        <input type=text class="form-control form-control-lg" name="nameQuery" id="idInputQuery">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -79,7 +73,7 @@
                         <label for="idInputSubreddit">Subreddit: </label>
                     </div>
                     <div class="col-8">
-                        <input type=text class="form-control form-control-lg" name="Subreddit"
+                        <input type=text class="form-control form-control-lg" name="nameSubreddit"
                             placeholder="movies, apexlegends, ..." id="idInputSubreddit">
                     </div>
                 </div>
@@ -101,7 +95,7 @@
                     <div class="col-1 text-left">
                         <label for="idSelectTime">Time: </label>
                     </div>
-                    <div class="col-3 mb-4">
+                    <div class="col-3">
                         <select class="form-control" name="nameSelectTime" id="idSelectTime">
                             <option value="hour">Last 24 hours</option>
                             <option value="day">Last day</option>
@@ -113,13 +107,35 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                    <div class="col-1 text-left">
+                        <label for="idInputLimit">Limit: </label>
+                    </div>
+                    <div class="col-3 mb-4">
+                        <input type=number class="form-control form-control-lg" name="nameLimit" min=1 max=1000 value=10
+                            id="idInputLimit">
+                    </div>
+                </div>
+                <div class="form-group row">
                     <div class="col-2">
-                        <button type="submit" class="btn btn-block btn-lg btn-primary">Search!</button>
+                        <button id="idBtnParameters" type="submit"
+                            class="btn btn-block btn-lg btn-primary">Search</button>
                     </div>
                 </div>
             </form>
         </div>
     </header>
+
+    <!-- Icons Grid -->
+    <section class="features-icons bg-light text-center">
+        <div class="container" id="idStatisticsContainer">
+        </div>
+    </section>
+
+    <!-- Showcases -->
+    <section class="showcase">
+        <div class="container-fluid p-0" id="idShowcaseContainer">
+        </div>
+    </section>
 </body>
 
 </html>
