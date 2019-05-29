@@ -75,7 +75,7 @@ class Db{
         if($data->title!=NULL){
             $titleSQL = $this->banCharacters($unwanted, $data->title);
             $titleSQL=mysqli_real_escape_string($this->conn, $titleSQL);
-            echo $titleSQL.PHP_EOL;
+            //echo $titleSQL.PHP_EOL;
         }
         if($data->body!=NULL){
 
@@ -83,7 +83,7 @@ class Db{
            /* $body=str_replace("“","\"",$body);
             $body=str_replace("”","\"",$body);*/
             $bodySQL=mysqli_real_escape_string($this->conn, $bodySQL);
-            echo $bodySQL.PHP_EOL;            
+            //echo $bodySQL.PHP_EOL;            
         }
         
         switch($table){
@@ -135,7 +135,7 @@ class Db{
             $innerJoin=true;
         }else{
             $format.=$this->schemaName.".".$table;
-            echo "Table: ".$table.PHP_EOL;
+            //echo "Table: ".$table.PHP_EOL;
         }
         if(!empty($conditions)){
             foreach($conditions as $condition){
@@ -145,7 +145,7 @@ class Db{
                 }else{
                     $format.=" WHERE ".$condition;
                 }
-                echo $format;
+                //echo $format;
                 if ($this->conn->query($format) === FALSE) {
                     echo "SELECT: Error selecting: " . $this->conn->error.";".PHP_EOL;
                 }
@@ -160,7 +160,7 @@ class Db{
                 }*/
             }
         }
-        echo $format;
+        //echo $format;
         $result = $this->conn->query($format);      
             while($row = $result->fetch_assoc()) {
                 if($counting){
