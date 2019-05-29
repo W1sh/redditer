@@ -10,10 +10,16 @@ var ID_URL_FORM = "idUrlForm",
     ID_LIMIT = "idInputLimit",
     ID_BTN_PARAMETERS = "idBtnParameters",
     ID_SHOWCASE_CONTAINER = "idShowcaseContainer",
-    ID_STATISTICS_CONTAINER = "idStatisticsContainer";
+    ID_STATISTICS_CONTAINER = "idStatisticsContainer",
+    ID_RIGHT_CHART = "idRightChart",
+    ID_LEFT_CHART = "idLeftChart",
+    ID_RIGHT_CHART_CONTAINER = "idRightChartContainer",
+    ID_LEFT_CHART_CONTAINER = "idLeftChartContainer";
 
 var eleUrlForm, eleUrl, eleParametersForm, eleInputSubreddit, eleSelectCategory, eleSelectTime,
-    eleLimit, eleQuery, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer;
+    eleLimit, eleQuery, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer, eleRightChart,
+    eleLeftChart, eleRightChartContainer, eleLeftChartContainer;
+var rightChartCtx, leftChartCtx;
 var URL_DO_SERVICO = "actions.php";
 
 function $(pId) {
@@ -39,15 +45,23 @@ function boot() {
     eleBtnParamters = $(ID_BTN_PARAMETERS);
     eleShowcaseContainer = $(ID_SHOWCASE_CONTAINER);
     eleStatisticsContainer = $(ID_STATISTICS_CONTAINER);
+    eleRightChart = $(ID_RIGHT_CHART);
+    eleLeftChart = $(ID_LEFT_CHART);
+    eleRightChartContainer = $(ID_RIGHT_CHART_CONTAINER);
+    eleLeftChartContainer = $(ID_LEFT_CHART_CONTAINER);
 
     var objects = [eleUrlForm, eleUrl, eleInputSubreddit, eleParametersForm, eleSelectCategory,
-        eleSelectTime, eleQuery, eleLimit, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer];
+        eleSelectTime, eleQuery, eleLimit, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer,
+        eleRightChart, eleLeftChart, eleRightChartContainer, eleLeftChartContainer];
     var bAllOk = allOk(objects);
     if (!bAllOk) {
         alert("There is 1+ object(s) with a problem.");
         return;
     }// if
     
+    rightChartCtx = eleRightChart.getContext('2d');
+    leftChartCtx = eleLeftChart.getContext('2d');
+
     eleParametersForm.onsubmit = sendParametersRequest;
     eleUrlForm.onsubmit = sendURLRequest;
 }// boot
@@ -453,4 +467,97 @@ function createStatisticsSection(pStatistics){
     eleStatisticsContainer.appendChild(secondRow);
     eleStatisticsContainer.appendChild(document.createElement('br'));
     eleStatisticsContainer.appendChild(thirdRow);
+    eleStatisticsContainer.appendChild(document.createElement('br'));
+
+    var assocArrayKeys = [];
+    var assocArrayValues = [];
+
+    for (let key in pStatistics.most_used_words_in_body){
+        assocArrayKeys.push(key);
+        assocArrayValues.push(pStatistics.most_used_words_in_body[key]);
+    }
+
+    var h2LeftChartTitle = document.createElement('h2');
+    h2LeftChartTitle.textContent = "Most used words in post body";
+    h2LeftChartTitle.className = "mb-5 mt-5";
+
+    eleLeftChartContainer.insertBefore(h2LeftChartTitle, eleLeftChart);
+    eleLeftChartContainer.insertBefore(document.createElement('br'), eleLeftChart);
+
+    var leftBarChart = new Chart(leftChartCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: assocArrayKeys,
+            datasets: [{
+                label: '# of usages',
+                data: assocArrayValues,
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ]}],
+            },
+        options: {
+            responsive: true,
+            mantainAspectRatio: true,
+            scales: {
+                yAxes: [{
+                    categoryPercentage: 0.8,
+                    barPercentage: 0.8,
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var h2RightChartTitle = document.createElement('h2');
+    h2RightChartTitle.textContent = "Most used words in post body";
+    h2RightChartTitle.className = "mb-5 mt-5";
+
+    eleRightChartContainer.insertBefore(h2RightChartTitle, eleRightChart);
+    eleRightChartContainer.insertBefore(document.createElement('br'), eleRightChart);
+
+    var rightBarChart = new Chart(rightChartCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: assocArrayKeys,
+            datasets: [{
+                label: '# of usages',
+                data: assocArrayValues,
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ]}],
+            },
+        options: {
+            responsive: true,
+            mantainAspectRatio: true,
+            scales: {
+                yAxes: [{
+                    categoryPercentage: 0.8,
+                    barPercentage: 0.8,
+                    gridLines: {
+                        offsetGridLines: true
+                    }
+                }]
+            }
+        }
+    });
 }
