@@ -9,6 +9,7 @@ require_once __DIR__."/redditer.php";
 require_once __DIR__."/Db.php";
 require_once __DIR__."/libs/twitter_bot/AmTwitterBot.php";
 require_once "secrets.php";
+require_once "utils.php";
 
 date_default_timezone_set("Europe/Lisbon");
 
@@ -66,3 +67,8 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
+
+$r = new Redditer();
+$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 50)->get_posts();
+$stats = get_statistics($posts);
+print_r($stats);

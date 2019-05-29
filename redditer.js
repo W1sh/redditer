@@ -9,10 +9,11 @@ var ID_URL_FORM = "idUrlForm",
     ID_SELECT_TIME = "idSelectTime",
     ID_LIMIT = "idInputLimit",
     ID_BTN_PARAMETERS = "idBtnParameters",
-    ID_SHOWCASE_CONTAINER = "idShowcaseContainer";
+    ID_SHOWCASE_CONTAINER = "idShowcaseContainer",
+    ID_STATISTICS_CONTAINER = "idStatisticsContainer";
 
 var eleUrlForm, eleUrl, eleParametersForm, eleInputSubreddit, eleSelectCategory, eleSelectTime,
-    eleLimit, eleQuery, eleBtnParamters, eleShowcaseContainer;
+    eleLimit, eleQuery, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer;
 var URL_DO_SERVICO = "actions.php";
 
 function $(pId) {
@@ -37,9 +38,10 @@ function boot() {
     eleLimit = $(ID_LIMIT);
     eleBtnParamters = $(ID_BTN_PARAMETERS);
     eleShowcaseContainer = $(ID_SHOWCASE_CONTAINER);
+    eleStatisticsContainer = $(ID_STATISTICS_CONTAINER);
 
     var objects = [eleUrlForm, eleUrl, eleInputSubreddit, eleParametersForm, eleSelectCategory,
-        eleSelectTime, eleQuery, eleLimit, eleBtnParamters, eleShowcaseContainer];
+        eleSelectTime, eleQuery, eleLimit, eleBtnParamters, eleShowcaseContainer, eleStatisticsContainer];
     var bAllOk = allOk(objects);
     if (!bAllOk) {
         alert("There is 1+ object(s) with a problem.");
@@ -188,4 +190,37 @@ function createInfoSectionString(pAuthor, pSubreddit, pTimePassed){
 function createTitleWithHyperlink(pTitle, pUrl){
     var string = "<a href=\"" + pUrl + "\">" + pTitle + "</a>";
     return string;
+}
+
+function createStatisticsSection(){
+    /*<h2 class="mb-5">What people are saying...</h2>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="far fa-user m-auto"></i>
+                        </div>
+                        <h3>Fully Responsive</h3>
+                        <p class="lead mb-0">This theme will look great on any device, no matter the size!</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="far fa-user m-auto"></i>
+                        </div>
+                        <h3>Bootstrap 4 Ready</h3>
+                        <p class="lead mb-0">Featuring the latest build of the new Bootstrap 4 framework!</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="far fa-user m-auto"></i>
+                        </div>
+                        <h3>Easy to Use</h3>
+                        <p class="lead mb-0">Ready to use with your own content, or customize the source files!</p>
+                    </div>
+                </div>
+            </div>*/
 }
