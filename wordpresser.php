@@ -72,7 +72,3 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
-
-$r = new Redditer();
-$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();
-post_to_wordpress($posts[0]);

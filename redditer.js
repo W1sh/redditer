@@ -117,7 +117,19 @@ function ajax(pType, pPostUrl, pObject, pFunction) {
                 oReq.send(formData);
             }else{
                 oReq.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                oReq.send("purl=" + pObject);
+                if(Array.isArray(pObject)){
+                    var stringForUrl = "";
+                    for (let i=0; i<pObject.length; i++){
+                        if(i != 0 ){
+                            stringForUrl +=  "&info" + i + "=" + pObject[i];
+                        }else{
+                            stringForUrl +=  "info" + i + "=" + pObject[i];
+                        }
+                    }
+                    oReq.send(stringForUrl);
+                }else{
+                    oReq.send("info=" + pObject);
+                }
             }
         } // if
     }else{
@@ -209,7 +221,10 @@ function createShowcaseElement(pTitle, pInfo, pBody, pHasVideo, pUrl){
         var postUrl = this.parentElement.childNodes[0].firstChild.href;
         twitterButton.className = "btn btn-success";
         twitterButton.textContent = "Posting... ";
-        ajax("POST", URL_DO_SERVICO + "/postToTwitter", postUrl, function () {
+        var titleWithEndTag = pTitle.substr(pTitle.indexOf(">") + 1);
+        var title = titleWithEndTag.slice(0, -4);
+        var infoToSend = [title, postUrl];
+        ajax("POST", URL_DO_SERVICO + "/postToTwitter", infoToSend, function () {
             twitterButton.className = "btn btn-success";
             twitterButton.textContent = "Posted ";
             console.log(this.responseText);
