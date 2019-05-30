@@ -1,7 +1,7 @@
 <?php
-use am\internet\HttpHelper;
 
-//use am\internet\AmTwitterBot;
+use am\internet\HttpHelper;
+//use twitter_bot\AmTwitterBot;
 
 require_once __DIR__."/vendor/autoload.php";
 require_once __DIR__."/libs/wordpresser/am_wordpress_tools.php";
@@ -15,7 +15,9 @@ date_default_timezone_set("Europe/Lisbon");
 
 define ("BLOG_USER", $WORDPRESS_SECRETS['user']);
 define ("BLOG_PASS", $WORDPRESS_SECRETS['password']);
-define ("BLOG_XMLRPC", $WORDPRESS_SECRETS['url']."xmlrpc.php");
+define ("BLOG_URL", $WORDPRESS_SECRETS['url']);
+define ("BLOG_XMLRPC", BLOG_URL."xmlrpc.php");
+define ("TWITTER_SECRETS", $TWITTER_SECRETS);
 
 function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true){
     foreach($posts as $post){
@@ -24,6 +26,9 @@ function post_multiple_to_wordpress($posts,$allowComments=true,$allowPings=true)
 }// post_multiple_to_wordpress
 
 function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
+    echo BLOG_USER.PHP_EOL;
+    echo BLOG_PASS.PHP_EOL;
+    echo BLOG_XMLRPC.PHP_EOL;
     $helper = new HttpHelper();
     if($post->contentUrl['is_video'] == false){
         $bReachableUrl = $helper->isUrlReachable($post->contentUrl['url']);
@@ -46,12 +51,12 @@ function post_to_wordpress($post,$allowComments=true,$allowPings=true) {
         BLOG_USER,    // user
         BLOG_PASS,    // pass
         BLOG_XMLRPC);    // xmlrpc 
-    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at the ".BLOG['blogname']." for more info.");
+    //postOnTwitter("New posts are available on our Wordpress.\n\nTake a look at ".BLOG_URL." for more info.");
 }
     
 function postOnTwitter($conteudo){
-    //$twitterBot = new AmTwitterBot(SECRETS);
-    //$twitterBot->postStatusesUpdate($conteudo);
+    $twitterBot = new AmTwitterBot(TWITTER_SECRETS);
+    $twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
 
 function searchInDb($data, $conditions, $table="", $counting=false, $return=false){
@@ -68,7 +73,6 @@ function postOnDataBase($posts){
     }
 }
 
-/*$r = new Redditer();
-$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 50)->get_posts();
-$stats = get_statistics($posts);
-print_r($stats);*/
+$r = new Redditer();
+$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();
+post_to_wordpress($posts[0]);

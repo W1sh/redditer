@@ -74,10 +74,10 @@ function sendURLRequest(){
         for (var element of elementsArray){
             var title = createTitleWithHyperlink(element.title, element.postUrl);
             var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
-            createShowcaseElement(title, info, element.body);
+            createShowcaseElement(title, info, element.body, element.contentUrl['is_video'], element.contentUrl['url']);
         }
         changeBtnState("success");
-        eleStatisticsContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
+        eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
     });
     changeBtnState("searching");
     return false;
@@ -95,11 +95,11 @@ function sendParametersRequest(){
         for (var element of elementsArray){
             var title = createTitleWithHyperlink(element.title, element.postUrl);
             var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
-            createShowcaseElement(title, info, element.body);
+            createShowcaseElement(title, info, element.body, element.contentUrl['is_video'], element.contentUrl['url']);
         }
         createStatisticsSection(statistics);
         changeBtnState("success");
-        eleStatisticsContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
+        eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
     });
     changeBtnState("searching");
     return false;
@@ -140,7 +140,7 @@ function changeBtnState(pState){
     }
 }
 
-function createShowcaseElement(pTitle, pInfo, pBody){
+function createShowcaseElement(pTitle, pInfo, pBody, pHasVideo, pUrl){
     /*<div class="row no-gutters">
         <div class="col-lg-12 order-lg-1 my-auto showcase-text">
             <h2> title </h2>
@@ -159,10 +159,32 @@ function createShowcaseElement(pTitle, pInfo, pBody){
     var body = document.createElement('p');
     body.className = "lead mb-0";
     body.textContent = pBody;
+
     content.appendChild(title);
     content.appendChild(info);
     content.appendChild(body);
     content.appendChild(document.createElement('br'));
+
+    if(pHasVideo){
+        var bodyVideoContainer = document.createElement('div');
+        bodyVideoContainer.className= "embed-responsive embed-responsive-16by9";
+        var bodyVideo = document.createElement('video');
+        bodyVideo.className= "embed-responsive-item";
+        bodyVideo.src = pUrl;
+        bodyVideo.setAttribute('controls', 'controls');
+        bodyVideo.autoplay = false;
+        bodyVideoContainer.appendChild(bodyVideo);
+        content.appendChild(bodyVideoContainer);
+        content.appendChild(document.createElement('br'));
+    }
+    if(pHasVideo == false && pUrl != false){
+        var bodyImage = document.createElement('img');
+        bodyImage.className = "img-fluid";
+        bodyImage.src = pUrl;
+        content.appendChild(bodyImage);
+        content.appendChild(document.createElement('br'));
+    }
+   
     var wordpressButton = document.createElement('button');
     wordpressButton.className = "btn btn-info mr-2";
     wordpressButton.textContent = "Wordpress ";
@@ -407,7 +429,7 @@ function createStatisticsSection(pStatistics){
     thirdRowFirstColumnText.className = "lead mb-0";
     var mostLikedMultipleKey = Object.keys(pStatistics.most_liked_multiple)[0];
     thirdRowFirstColumnText.textContent = "u/" + mostLikedMultipleKey + " with " + 
-        pStatistics.most_liked_multiple[mostLikedMultipleKey] + " likes received across " + pStatistics.num_posts + " posts";
+        pStatistics.most_liked_multiple[mostLikedMultipleKey] + " likes received across all " + pStatistics.num_posts + " posts";
     thirdRowFirstColumnContent.appendChild(thirdRowFirstColumnIconContainer);
     thirdRowFirstColumnContent.appendChild(thirdRowFirstColumnTextTitle);
     thirdRowFirstColumnContent.appendChild(thirdRowFirstColumnText);
@@ -429,7 +451,7 @@ function createStatisticsSection(pStatistics){
     thirdRowSecondColumnText.className = "lead mb-0";
     var mostEngagedMultipleKey = Object.keys(pStatistics.most_engaged_multiple)[0];
     thirdRowSecondColumnText.textContent = "u/" + mostEngagedMultipleKey + " with " + 
-        pStatistics.most_engaged_multiple[mostEngagedMultipleKey] + " comments posted across " + pStatistics.num_posts + " posts";
+        pStatistics.most_engaged_multiple[mostEngagedMultipleKey] + " comments posted across all " + pStatistics.num_posts + " posts";
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnIconContainer);
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnTextTitle);
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnText);
@@ -451,7 +473,7 @@ function createStatisticsSection(pStatistics){
     thirdRowThirdColumnText.className = "lead mb-0";
     var mostAwardedMultipleKey = Object.keys(pStatistics.most_awarded_multiple)[0];
     thirdRowThirdColumnText.textContent = "u/" + mostAwardedMultipleKey + " with " + 
-        pStatistics.most_awarded_multiple[mostAwardedMultipleKey] + " awards received across " + pStatistics.num_posts + " posts";
+        pStatistics.most_awarded_multiple[mostAwardedMultipleKey] + " awards received across all " + pStatistics.num_posts + " posts";
     thirdRowThirdColumnContent.appendChild(thirdRowThirdColumnIconContainer);
     thirdRowThirdColumnContent.appendChild(thirdRowThirdColumnTextTitle);
     thirdRowThirdColumnContent.appendChild(thirdRowThirdColumnText);
@@ -469,16 +491,16 @@ function createStatisticsSection(pStatistics){
     eleStatisticsContainer.appendChild(thirdRow);
     eleStatisticsContainer.appendChild(document.createElement('br'));
 
-    var assocArrayKeys = [];
-    var assocArrayValues = [];
+    var mostUsedWordsTitleAssocArrayKeys = [];
+    var mostUsedWordsTitleAssocArrayValues = [];
 
-    for (let key in pStatistics.most_used_words_in_body){
-        assocArrayKeys.push(key);
-        assocArrayValues.push(pStatistics.most_used_words_in_body[key]);
+    for (let key in pStatistics.most_used_words_in_title){
+        mostUsedWordsTitleAssocArrayKeys.push(key);
+        mostUsedWordsTitleAssocArrayValues.push(pStatistics.most_used_words_in_title[key]);
     }
 
     var h2LeftChartTitle = document.createElement('h2');
-    h2LeftChartTitle.textContent = "Most used words in post body";
+    h2LeftChartTitle.textContent = "Most used words in post title";
     h2LeftChartTitle.className = "mb-5 mt-5";
 
     eleLeftChartContainer.insertBefore(h2LeftChartTitle, eleLeftChart);
@@ -487,10 +509,10 @@ function createStatisticsSection(pStatistics){
     var leftBarChart = new Chart(leftChartCtx, {
         type: 'horizontalBar',
         data: {
-            labels: assocArrayKeys,
+            labels: mostUsedWordsTitleAssocArrayKeys,
             datasets: [{
                 label: '# of usages',
-                data: assocArrayValues,
+                data: mostUsedWordsTitleAssocArrayValues,
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(75, 192, 192, 0.2)',
@@ -519,6 +541,14 @@ function createStatisticsSection(pStatistics){
         }
     });
 
+    var mostUsedWordsBodyAssocArrayKeys = [];
+    var mostUsedWordsBodyAassocArrayValues = [];
+
+    for (let key in pStatistics.most_used_words_in_body){
+        mostUsedWordsBodyAssocArrayKeys.push(key);
+        mostUsedWordsBodyAassocArrayValues.push(pStatistics.most_used_words_in_body[key]);
+    }
+
     var h2RightChartTitle = document.createElement('h2');
     h2RightChartTitle.textContent = "Most used words in post body";
     h2RightChartTitle.className = "mb-5 mt-5";
@@ -529,10 +559,10 @@ function createStatisticsSection(pStatistics){
     var rightBarChart = new Chart(rightChartCtx, {
         type: 'horizontalBar',
         data: {
-            labels: assocArrayKeys,
+            labels: mostUsedWordsBodyAssocArrayKeys,
             datasets: [{
                 label: '# of usages',
-                data: assocArrayValues,
+                data: mostUsedWordsBodyAassocArrayValues,
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(75, 192, 192, 0.2)',

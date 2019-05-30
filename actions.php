@@ -31,11 +31,11 @@ switch ($method){
                 echo json_encode($array);
                 break;
             case "postToTwitter":
-                $post = $bot->get_post_from_url($_REQUEST['purl']);
-                echo post_to_wordpress($post);
+                postOnTwitter("OH DAMN");
                 break;
             case "postToWordpress":
-                echo $_REQUEST['purl'];
+                $post = $bot->get_post_from_url($_REQUEST['purl']);
+                echo post_to_wordpress($post);
                 break;
         }
     break;
