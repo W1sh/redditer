@@ -125,15 +125,23 @@
         </div>
     </header>
 
+    <!-- Showcases -->
+    <section class="showcase">
+        <div class="container-fluid p-0" id="idShowcaseContainer">
+        </div>
+    </section>
+
     <!-- Icons Grid -->
     <section class="features-icons bg-light text-center">
         <div class="container" id="idStatisticsContainer">
         </div>
-    </section>
-
-    <!-- Showcases -->
-    <section class="showcase">
-        <div class="container-fluid p-0" id="idShowcaseContainer">
+        <div class="d-flex justify-content-between" id="idChartContainer">
+            <div id="idLeftChartContainer" class="col-5">
+                <canvas id="idLeftChart" width="270" height="270"></canvas>
+            </div>
+            <div id="idRightChartContainer" class="col-5 mr-4">
+                <canvas id="idRightChart" width="270" height="270"></canvas>
+            </div>
         </div>
     </section>
 </body>
