@@ -69,13 +69,17 @@ function boot() {
 function sendURLRequest(){
     ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm, function () {
         var start = this.responseText.indexOf("[");
-        var json = this.responseText.substr(start);
-        var elementsArray = JSON.parse(json);
+        var end = this.responseText.lastIndexOf("]");
+        var elementsJson = this.responseText.substr(start, (end - start + 1));
+        var statisticsJson = this.responseText.substr(end + 1);
+        var elementsArray = JSON.parse(elementsJson);
+        var statistics = JSON.parse(statisticsJson);
         for (var element of elementsArray){
             var title = createTitleWithHyperlink(element.title, element.postUrl);
             var info = createInfoSectionString(element.author, element.subreddit, element.timePassed);
             createShowcaseElement(title, info, element.body, element.contentUrl['is_video'], element.contentUrl['url']);
         }
+        createStatisticsSection(statistics);
         changeBtnState("success");
         eleShowcaseContainer.scrollIntoView({block: 'start', behavior: 'smooth'});
     });
@@ -85,7 +89,6 @@ function sendURLRequest(){
 
 function sendParametersRequest(){
     ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm, function () {
-        
         var start = this.responseText.indexOf("[");
         var end = this.responseText.lastIndexOf("]");
         var elementsJson = this.responseText.substr(start, (end - start + 1));
@@ -153,13 +156,6 @@ function changeBtnState(pState){
 }
 
 function createShowcaseElement(pTitle, pInfo, pBody, pHasVideo, pUrl){
-    /*<div class="row no-gutters">
-        <div class="col-lg-12 order-lg-1 my-auto showcase-text">
-            <h2> title </h2>
-            <p> Posted by ... </p
-            <p class="lead mb-0"> body </p>
-        </div>
-    </div>*/
     var row = document.createElement('div');
     row.className = "row no-gutters";
     var content = document.createElement('div');
@@ -249,36 +245,6 @@ function createTitleWithHyperlink(pTitle, pUrl){
 }
 
 function createStatisticsSection(pStatistics){
-    /*<h2 class="mb-5">What people are saying...</h2>
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
-                        <div class="features-icons-icon d-flex">
-                            <i class="far fa-user m-auto"></i>
-                        </div>
-                        <h3>Fully Responsive</h3>
-                        <p class="lead mb-0">This theme will look great on any device, no matter the size!</p>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
-                        <div class="features-icons-icon d-flex">
-                            <i class="far fa-user m-auto"></i>
-                        </div>
-                        <h3>Bootstrap 4 Ready</h3>
-                        <p class="lead mb-0">Featuring the latest build of the new Bootstrap 4 framework!</p>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="features-icons-item mx-auto mb-0 mb-lg-3">
-                        <div class="features-icons-icon d-flex">
-                            <i class="far fa-user m-auto"></i>
-                        </div>
-                        <h3>Easy to Use</h3>
-                        <p class="lead mb-0">Ready to use with your own content, or customize the source files!</p>
-                    </div>
-                </div>
-            </div>*/
     var h2title = document.createElement('h2');
     h2title.textContent = "Got " + pStatistics.num_posts + " posts from " + pStatistics.subreddit;
     h2title.className = "mb-5";
