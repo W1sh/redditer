@@ -53,22 +53,74 @@ function postOnTwitter($conteudo){
     //$twitterBot = new AmTwitterBot(SECRETS);
     //$twitterBot->postStatusesUpdate($conteudo);
 }// postOnTwitter
-
-function searchInDb($data, $conditions, $table="", $counting=false, $return=false){
-    $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
+function turnArrayIntoObject($array,$type)
+{
+    $res=array();
+    switch($type){
+        case "Posts":
+            foreach($array as $object){
+                $object['comments']=searchInDb(array("PostId='".$object['PostId']."'"),false,true,"Comments");  
+                $res[]=Post::newPostArray($object);
+                echo"CREATE POSTS: ";
+                var_dump($object).PHP_EOL;
+            }
+        break;
+        case "Comments":
+            foreach($array as $object){
+                $res[]=Comment::newCommentArray($object);
+            }
+        break;
+    }
+    return $res;
+}
+function searchInDb($conditions=array(), $counting=false, $return=false,$table="",$data=array("*")){
+    $dB=new Db("localhost","root","");
     $dB->initDB();
-    echo($dB->statistcsSearcher($data, $conditions, $table, $counting, $return)); 
-
+    $res=array();
+    $count=0;
+    if($table==""){
+        $res['Posts']=$dB->statistcsSearcher($data, $conditions, "Posts", $counting, $return);
+        $res['Comments']=$dB->statistcsSearcher($data, $conditions, "Comments", $counting, $return);
+        if($counting&&$return||!$counting&&!$return){
+            $count=$res['Posts']['Count']+$res['Comments']['Count'];
+            $res['Posts']=turnArrayIntoObject($res['Posts']['Result']['object'], "Posts");
+            $res['Comments']=turnArrayIntoObject($res['Comments']['Result']['object'], "Comments");
+            return array('Result'=>$res,'Count'=>$count);
+        }elseif ($counting&&!$return) {
+            $count=$res['Posts']['Count']+$res['Comments']['Count'];
+            return $count;
+        }else{
+            $res['Posts']=turnArrayIntoObject($res['Posts']['Result']['object'], "Posts");
+            $res['Comments']=turnArrayIntoObject($res['Comments']['Result']['object'], "Comments");
+            return $res;
+        }
+    }else{
+        $res=$dB->statistcsSearcher($data, $conditions, $table, $counting, $return);   
+        if($counting&&$return||!$counting&&!$return){
+            return array('Result'=>turnArrayIntoObject($res['Result'], $table), 'Count'=> $res['Count']);
+        }elseif ($counting&&!$return) {
+            $count=$res;          
+            return $count;
+        }else{
+            $res=turnArrayIntoObject($res['object'], $table);
+            return $res;
+        }
+}
 }
 function postOnDataBase($posts){
-    $dB=new Db(SECRETS['servername'],SECRETS['username'],SECRETS['password']);
+    $dB=new Db("localhost","root","");
     $dB->initDB();
     foreach($posts as $post){
         $dB->input("Post",$post);
     }
 }
 
-$r = new Redditer();
-$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 50)->get_posts();
-$stats = get_statistics($posts);
-print_r($stats);
+$r = new Redditer();/*
+$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();*/
+$post=$r->get_post_from_url("https://www.reddit.com/r/Documentaries/comments/bur9if/children_of_the_stars_2012_is_a_documentary_about/");
+//postOnDataBase(array($post));
+//var_dump(searchInDb(array(),true, true));*/
+print_r(searchInDb(array(),true,false,"Posts"));
+echo "FINITO";
+/*$stats = get_statistics($posts);
+print_r($stats);*/

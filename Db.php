@@ -36,7 +36,11 @@ class Db{
             Score INT(18),
             Redditor VARCHAR(30) NOT NULL,
             Awards INT(18),
-            Created DATETIME NOT NULL,
+            PostUrl VARCHAR(300) NOT NULL,
+            IsVideo BOOL NOT NULL,
+            Url VARCHAR(18) NOT NULL,
+            ImageId VARCHAR(18) NOT NULL,
+            Created VARCHAR(30) NOT NULL,
             Subreddit VARCHAR(50) NOT NULL,
             NumComments INT(18),
             reg_date TIMESTAMP
@@ -52,7 +56,7 @@ class Db{
                 Replies INT(18),
                 Redditor VARCHAR(30) NOT NULL,
                 Body VARCHAR(999) NOT NULL,
-                Created DATETIME NOT NULL,
+                Created VARCHAR(30) NOT NULL,
                 PostId VARCHAR(10) NOT NULL,
                 reg_date TIMESTAMP,
                 FOREIGN KEY (PostId) REFERENCES ".$this->schemaName.".Posts(PostId)
@@ -90,14 +94,15 @@ class Db{
             case "Post":
                 
                 
-                $sql = sprintf("INSERT INTO %s.Posts(PostId, Title, Body, Score, Redditor, Awards, Created, Subreddit, NumComments,reg_date) VALUES
-                ('%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$data->id,$titleSQL,$data->body==NULL?NULL:$bodySQL,$data->score==NULL?NULL:$data->score,
-                    $data->author==NULL?NULL:$data->author,$data->awards==NULL?NULL:$data->awards,$data->created==NULL?NULL:$data->created,
+                $sql = sprintf("INSERT INTO %s.Posts VALUES
+                ('%s','%s','%s','%s','%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)",$this->schemaName,$data->id,$titleSQL,$data->body==NULL?NULL:$bodySQL,$data->score==NULL?NULL:$data->score,
+                    $data->author==NULL?NULL:$data->author,$data->awards==NULL?NULL:$data->awards,$data->postUrl,$data->contentUrl['is_video'],
+                    $data->contentUrl['url'],$data->contentUrl['image_id'],$data->created==NULL?NULL:$data->created,
                     $data->subreddit==NULL?NULL:$data->subreddit,$data->numComments==NULL?NULL:$data->numComments);
-                if ($this->conn->query($sql) === FALSE) {
+                    if ($this->conn->query($sql) === FALSE) {
                     echo "INSERT POSTS: Error creating insert: " . $this->conn->error."".PHP_EOL;
                 }
-                
+           
                 foreach($data->comments as $comment){
                     $this->input("Comment",$comment,$data->id);
                 }
@@ -107,7 +112,7 @@ class Db{
             if($id===null){
                 return FALSE;
             }
-            $sql = sprintf("INSERT INTO %s.Comments(CommentsId, Awards, Score, Replies, Redditor, Body, Created, PostId, reg_date) VALUES(
+            $sql = sprintf("INSERT INTO %s.Comments VALUES(
             '%s','%s','%s','%s','%s','%s','%s','%s',CURRENT_TIMESTAMP)",$this->schemaName,$data->id,$data->awards==NULL?NULL:$data->awards,$data->score==NULL?NULL:$data->score,
             $data->replies==NULL?NULL:$data->replies,$data->author==NULL?NULL:$data->author,$data->body==NULL?NULL:$bodySQL,$data->created==NULL?NULL:$data->created,
             $id);
@@ -117,8 +122,14 @@ class Db{
         break;
         }
     }  
-    function statistcsSearcher($what,$conditions,$table,$counting=false, $return=false){
-        $format= $sql="SELECT ".$what." FROM ";
+    function statistcsSearcher($whats,$conditions,$table,$counting=false, $return=false){
+        $format="SELECT ";
+        foreach($whats as $what){
+        $format.=$what.",";
+        }
+        $format=rtrim($format,',');
+        //echo $format.PHP_EOL;
+        $format.=" FROM ";
         $innerJoin=false;
         
         /*
@@ -130,51 +141,37 @@ class Db{
         */
         $count=0;
         $res=array();
-        if($table==""){
-            $format.=$this->schemaName.".Posts INNER JOIN ".$this->schemaName.".Comments";
-            $innerJoin=true;
-        }else{
-            $format.=$this->schemaName.".".$table;
-            //echo "Table: ".$table.PHP_EOL;
-        }
+        $format.=$this->schemaName.".".$table;
         if(!empty($conditions)){
             foreach($conditions as $condition){
-                if($innerJoin){
-                    $format.=" WHERE Posts.".$condition;
-                    $format.="OR Comments.".$condition;
-                }else{
-                    $format.=" WHERE ".$condition;
-                }
-                //echo $format;
+                $format.=" WHERE ".$condition;
                 if ($this->conn->query($format) === FALSE) {
                     echo "SELECT: Error selecting: " . $this->conn->error.";".PHP_EOL;
                 }
-                /*$result = $this->conn->query($format);      
-                while($row = $result->fetch_assoc()) {
-                    if($counting){
-                        $count++;
-                    }
-                    if($return){
-                        array_push($res,$row);
-                    }
-                }*/
             }
         }
-        //echo $format;
+        if ($this->conn->query($format) === FALSE) {
+            die ("SELECT: Error selecting: " . $this->conn->error.";".PHP_EOL);
+        }
         $result = $this->conn->query($format);      
             while($row = $result->fetch_assoc()) {
                 if($counting){
                     $count++;
                 }
                 if($return){
-                    array_push($res,$row);
+                   $res['object'][]=$row;
                 }
             }
         
         if($counting&&$return||!$counting&&!$return){
+            echo "BOTH".PHP_EOL;
             return $ar=array( 'Result'=>$res,'Count'=>$count);
         }
-        if($counting) return $count;
-        if($return) return $res;
+        if($counting){
+            echo "COUNT".PHP_EOL;
+            return $count;}
+        if($return){
+            echo "RETURN".PHP_EOL;
+            return $res;}
     }
 }

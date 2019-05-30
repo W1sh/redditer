@@ -104,7 +104,7 @@ class Redditer {
         }
         $postsCreated = 0;
         foreach ($posts as $post){
-            $redditPost = new Post($post->data);
+            $redditPost = Post::newPostData($post->data);
             $url = substr($redditPost->postUrl, 0, -1).".json";
             $json = $this->get_json($url);
             if($json != false){
@@ -143,7 +143,7 @@ class Redditer {
                 }else{
                     $jNumReplies = 0;
                 }// if
-                $this->mCommentsList[] = new Comment($comment->data, $jNumReplies);
+                $this->mCommentsList[] = Comment::newCommentData($comment->data, $jNumReplies);
             }// if
         }// foreach
     }// extract_comment
