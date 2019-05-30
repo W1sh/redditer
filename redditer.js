@@ -67,6 +67,7 @@ function boot() {
 }// boot
 
 function sendURLRequest(){
+    clearResults();
     ajax("POST", URL_DO_SERVICO + "/searchLink", eleUrlForm, function () {
         var start = this.responseText.indexOf("[");
         var end = this.responseText.lastIndexOf("]");
@@ -88,6 +89,7 @@ function sendURLRequest(){
 }
 
 function sendParametersRequest(){
+    clearResults();
     ajax("POST", URL_DO_SERVICO + "/searchSubreddit", eleParametersForm, function () {
         var start = this.responseText.indexOf("[");
         var end = this.responseText.lastIndexOf("]");
@@ -427,12 +429,12 @@ function createStatisticsSection(pStatistics){
     thirdRowSecondColumnIcon.className = "far fa-user m-auto";
     thirdRowSecondColumnIconContainer.appendChild(thirdRowSecondColumnIcon);
     var thirdRowSecondColumnTextTitle = document.createElement('h3');
-    thirdRowSecondColumnTextTitle.textContent = "Most engaged redditor";
+    thirdRowSecondColumnTextTitle.textContent = "Most engaging redditor";
     var thirdRowSecondColumnText = document.createElement('p');
     thirdRowSecondColumnText.className = "lead mb-0";
     var mostEngagedMultipleKey = Object.keys(pStatistics.most_engaged_multiple)[0];
     thirdRowSecondColumnText.textContent = "u/" + mostEngagedMultipleKey + " with " + 
-        pStatistics.most_engaged_multiple[mostEngagedMultipleKey] + " comments posted across all " + pStatistics.num_posts + " posts";
+        pStatistics.most_engaged_multiple[mostEngagedMultipleKey] + " comments received across all " + pStatistics.num_posts + " posts";
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnIconContainer);
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnTextTitle);
     thirdRowSecondColumnContent.appendChild(thirdRowSecondColumnText);
@@ -571,4 +573,31 @@ function createStatisticsSection(pStatistics){
             }
         }
     });
+}
+
+function clearResults(){
+    while (eleStatisticsContainer.firstChild) {
+        eleStatisticsContainer.removeChild(eleStatisticsContainer.firstChild);
+    }
+    while (eleShowcaseContainer.firstChild) {
+        eleShowcaseContainer.removeChild(eleShowcaseContainer.firstChild);
+    }
+    for(let i=0;i<eleLeftChartContainer.childNodes.length - 1;i++){
+        eleLeftChartContainer.removeChild(eleLeftChartContainer.firstChild);
+        eleRightChartContainer.removeChild(eleRightChartContainer.firstChild);
+    }
+
+    var rightBarChart = new Chart(rightChartCtx, {
+        type: 'horizontalBar',
+        data: [],
+        options: [],
+    });
+
+    var leftBarChart = new Chart(leftChartCtx, {
+        type: 'horizontalBar',
+        data: [],
+        options: [],
+    });
+    //eleRightChart.style.display = "none";
+    //eleLeftChart.style.display = "none";
 }
