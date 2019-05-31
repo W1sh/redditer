@@ -91,34 +91,27 @@ function searchInDb($conditions=array(), $counting=false, $return=false,$table="
     Table is a String that will be used to inform the statisticsSearcher where it needs to search
     Data is an array with the name of the parameters that we want
 
-*/
+*/ 
+    //If there's no table, them it will search on all tables
     if($table==""){
         $res['Posts']=$dB->statisticsSearcher($data, $conditions, "Posts", $counting, $return);
         $res['Comments']=$dB->statisticsSearcher($data, $conditions, "Comments", $counting, $return);
-        if($counting&&$return||!$counting&&!$return){
-            $count=$res['Posts']['Count']+$res['Comments']['Count'];
-            $res['Posts']=turnArrayIntoObject($res['Posts']['Result']['object'], "Posts");
-            $res['Comments']=turnArrayIntoObject($res['Comments']['Result']['object'], "Comments");
+            if($counting){
+                $count=$res['Posts']['Count']+$res['Comments']['Count'];
+            }if ($return) {
+                $res['Posts']=turnArrayIntoObject($res['Posts']['Result']['object'], "Posts");
+                $res['Comments']=turnArrayIntoObject($res['Comments']['Result']['object'], "Comments");
+            }
             return array('Result'=>$res,'Count'=>$count);
-        }elseif ($counting&&!$return) {
-            $count=$res['Posts']['Count']+$res['Comments']['Count'];
-            return $count;
-        }else{
-            $res['Posts']=turnArrayIntoObject($res['Posts']['Result']['object'], "Posts");
-            $res['Comments']=turnArrayIntoObject($res['Comments']['Result']['object'], "Comments");
-            return $res;
-        }
     }else{
         $res=$dB->statisticsSearcher($data, $conditions, $table, $counting, $return);   
-        if($counting&&$return||!$counting&&!$return){
-            return array('Result'=>turnArrayIntoObject($res['Result'], $table), 'Count'=> $res['Count']);
-        }elseif ($counting&&!$return) {
-            $count=$res;          
-            return $count;
-        }else{
-            $res=turnArrayIntoObject($res['object'], $table);
-            return $res;
+        if($counting){
+            $count=$res;            
+        }if ($return) {
+            $res=turnArrayIntoObject($res['Result']['object'], $table);
         }
+        return array('Result'=>$res, 'Count'=> $res['Count']);
+
 }
 }
 function postOnDataBase($posts){

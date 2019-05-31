@@ -75,6 +75,7 @@ class Db{
     }
     function input($table, $data,$id=null)
     {
+        //Inserts Data into the database, first removes the unwanted characters
         $unwanted=array("'","“","”","’");
         if($data->title!=NULL){
             $titleSQL = $this->banCharacters($unwanted, $data->title);
@@ -89,7 +90,7 @@ class Db{
             $bodySQL=mysqli_real_escape_string($this->conn, $bodySQL);
             //echo $bodySQL.PHP_EOL;            
         }
-        
+        //Then it checks where it will be inserted
         switch($table){
             case "Post":
                 
@@ -102,13 +103,14 @@ class Db{
                     if ($this->conn->query($sql) === FALSE) {
                     echo "INSERT POSTS: Error creating insert: " . $this->conn->error."".PHP_EOL;
                 }
-           
+                //Inserts the comments that come with the Data, this only happens when the data is a Post.
                 foreach($data->comments as $comment){
                     $this->input("Comment",$comment,$data->id);
                 }
         break;
 
         case "Comment":
+            //kills the insert of new valeus if there's no PostId
             if($id===null){
                 return FALSE;
             }
@@ -122,7 +124,8 @@ class Db{
         break;
         }
     }  
-    function statistcsSearcher($whats,$conditions,$table,$counting=false, $return=false){
+    function statisticsSearcher($whats,$conditions,$table,$counting=false, $return=false){
+        //Create a format that will Select what is asked, returns an Array or just a number if counting is true
         $format="SELECT ";
         foreach($whats as $what){
         $format.=$what.",";
@@ -133,14 +136,14 @@ class Db{
         $innerJoin=false;
         
         /*
-        What is the thing the user wishs to search
-        Conditions is an array with conditions
-        table is the name of the table
-        counting enables the return of the number of rows that we got from the select
-        return enables the return of an array with the rows selected
+        What is the thing the user wishs to search (array)
+        Conditions is an array with conditions (array)
+        table is the name of the table (String)
+        counting enables the return of the number of rows that we got from the select (bool)
+        return enables the return of an array with the rows selected (bool)
         */
-        $count=0;
-        $res=array();
+        $count=0; //Used to get the number of results
+        $res=array(); // Used to get the results
         $format.=$this->schemaName.".".$table;
         if(!empty($conditions)){
             foreach($conditions as $condition){
@@ -164,14 +167,16 @@ class Db{
             }
         
         if($counting&&$return||!$counting&&!$return){
-            echo "BOTH".PHP_EOL;
-            return $ar=array( 'Result'=>$res,'Count'=>$count);
+            //echo "BOTH".PHP_EOL;
+            return array( 'Result'=>$res,'Count'=>$count);
         }
         if($counting){
-            echo "COUNT".PHP_EOL;
-            return $count;}
+            //echo "COUNT".PHP_EOL;
+            return array('Count'=>$count);
+        }
         if($return){
-            echo "RETURN".PHP_EOL;
-            return $res;}
+            //echo "RETURN".PHP_EOL;
+            return array('Result'=>$res);
+        }
     }
 }
