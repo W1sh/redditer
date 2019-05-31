@@ -131,6 +131,7 @@ class Db{
         $format.=$what.",";
         }
         $format=rtrim($format,',');
+        $array=array();
         //echo $format.PHP_EOL;
         $format.=" FROM ";
         $innerJoin=false;
@@ -166,17 +167,14 @@ class Db{
                 }
             }
         
-        if($counting&&$return||!$counting&&!$return){
-            //echo "BOTH".PHP_EOL;
-            return array( 'Result'=>$res,'Count'=>$count);
-        }
         if($counting){
             //echo "COUNT".PHP_EOL;
-            return array('Count'=>$count);
+            $array['Count']=$count;
         }
         if($return){
             //echo "RETURN".PHP_EOL;
-            return array('Result'=>$res);
+            $array['Result']=$res;
         }
+        return $array;
     }
 }

@@ -105,12 +105,10 @@ function searchInDb($conditions=array(), $counting=false, $return=false,$table="
             return array('Result'=>$res,'Count'=>$count);
     }else{
         $res=$dB->statisticsSearcher($data, $conditions, $table, $counting, $return);   
-        if($counting){
-            $count=$res;            
-        }if ($return) {
-            $res=turnArrayIntoObject($res['Result']['object'], $table);
+        if ($return) {
+            $res['Result']=turnArrayIntoObject($res['Result']['object'], $table);
         }
-        return array('Result'=>$res, 'Count'=> $res['Count']);
+        return $res;
 
 }
 }
@@ -121,13 +119,9 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
-/*
-$r = new Redditer();/*
-$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();
+echo"-----------------------------------------------------------------------------------------------------------------------------------------------".PHP_EOL;
+$r = new Redditer();
 $post=$r->get_post_from_url("https://www.reddit.com/r/Documentaries/comments/bur9if/children_of_the_stars_2012_is_a_documentary_about/");
-//postOnDataBase(array($post));
-//var_dump(searchInDb(array(),true, true));
-print_r(searchInDb(array(),true,false,"Posts"));
-echo "FINITO";*/
-/*$stats = get_statistics($posts);
-print_r($stats);*/
+postOnDataBase(array($post));
+print_r(searchInDb(array(),true,true));
+echo "FINITO";

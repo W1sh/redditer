@@ -128,13 +128,13 @@ function postOnDataBase($posts){
         $dB->input("Post",$post);
     }
 }
-/*
-$r = new Redditer();/*
-$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();
+
+$r = new Redditer();
+//$posts = $r->on_subreddit("apexlegends", Category::cHot, Time::tDay, 1)->get_posts();
 $post=$r->get_post_from_url("https://www.reddit.com/r/Documentaries/comments/bur9if/children_of_the_stars_2012_is_a_documentary_about/");
-//postOnDataBase(array($post));
+postOnDataBase(array($post));
 //var_dump(searchInDb(array(),true, true));
-print_r(searchInDb(array(),true,false,"Posts"));
-echo "FINITO";*/
+print_r(searchInDb(array(),true,true,"Posts"));
+echo "FINITO";
 /*$stats = get_statistics($posts);
 print_r($stats);*/
