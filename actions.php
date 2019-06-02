@@ -4,6 +4,7 @@ require_once "redditer.php";
 require_once "wordpresser.php";
 require_once "utils.php";
 
+
 $method = $_SERVER['REQUEST_METHOD'];
 $path_info = $_SERVER['PATH_INFO'];
 $action = explode("/", $path_info)[1];
@@ -29,12 +30,14 @@ switch ($method) {
                     )->get_posts();
                 }
                 $stats = get_statistics($array);
+                postOnDataBase($array);
                 echo json_encode($array);
                 echo json_encode($stats);
                 break;
             case "searchLink":
                 $array = $bot->get_post_from_url($_REQUEST['nameRedditURL']);
                 $stats = get_statistics($array);
+                postOnDataBase($array);
                 echo json_encode($array);
                 echo json_encode($stats);
                 break;

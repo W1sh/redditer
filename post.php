@@ -14,38 +14,62 @@ class Post {
     public $subreddit;
     public $numComments;
     public $comments = array();
+    private function __construct(){
 
-    public function __construct($data){
-        $this->id = $data->id;
+    }
+    public static function newPostArray($array)
+    {
+        $obj = new Post();
+        $obj->id = $array['PostId'];
+        $obj->title = $array['Title'];
+        $obj->body = $array['Body'];
+        $obj->score = $array['Score'];
+        $obj->author = $array['Redditor'];
+        $obj->awards = $array['Awards']; 
+        $obj->postUrl = $array['PostUrl'];
+        $obj->contentUrl['is_video'] = $array['IsVideo'];
+        $obj->contentUrl['url'] = $array['Url'];
+        $obj->contentUrl['image_id'] = $array['ImageId'];
+        $obj->created = $array['Created'];
+        $obj->timePassed = time_as_pretty_string($obj->created);
+        $obj->subreddit = $array['Subreddit'];
+        $obj->numComments = $array['NumComments'];
+        $obj->comments = $array['comments'];
+        return $obj;
+    }
+    public static function newPostData($data){
+        $obj = new Post();
+        $obj->id = $data->id;
         $jOver18 = $data->over_18;
         $jSpoiler = $data->spoiler;
         $jTitle = $data->title;
-        $this->title = $data->title;
-        $this->body = $data->selftext;
-        $this->score = $data->score;
-        $this->author = $data->author;
-        $this->awards = $data->total_awards_received;
-        $this->postUrl = "https://www.reddit.com".$data->permalink;
+        $obj->title = $data->title;
+        $obj->body = $data->selftext;
+        $obj->score = $data->score;
+        $obj->author = $data->author;
+        $obj->awards = $data->total_awards_received;
+        $obj->postUrl = "https://www.reddit.com".$data->permalink;
         if(strpos($data->post_hint, "video") !== false){
-            $this->contentUrl['is_video'] = true;
-            $this->contentUrl['url'] = $data->media->reddit_video->fallback_url;
-            $this->contentUrl['image_id'] = false;
+            $obj->contentUrl['is_video'] = true;
+            $obj->contentUrl['url'] = $data->media->reddit_video->fallback_url;
+            $obj->contentUrl['image_id'] = false;
         }else{
             if($data->thumbnail != "self"){
-                $this->contentUrl['is_video'] = false;
-                $this->contentUrl['url'] = str_replace("amp;", "", $data->preview->images[0]->source->url);
-                $this->contentUrl['image_id'] = false;
+                $obj->contentUrl['is_video'] = false;
+                $obj->contentUrl['url'] = str_replace("amp;", "", $data->preview->images[0]->source->url);
+                $obj->contentUrl['image_id'] = false;
             }else{
-                $this->contentUrl['is_video'] = false;
-                $this->contentUrl['url'] = false;
-                $this->contentUrl['image_id'] = false;
+                $obj->contentUrl['is_video'] = false;
+                $obj->contentUrl['url'] = false;
+                $obj->contentUrl['image_id'] = false;
             }
         }
-        $this->timePassed = time_as_pretty_string($data->created_utc);
-        $this->created = $data->created_utc;
-        $this->subreddit = $data->subreddit_name_prefixed;
-        $this->numComments = $data->num_comments;
-        $this->title = $this->build_title($jTitle, $this->subreddit, $jOver18, $jSpoiler);
+        $obj->timePassed = time_as_pretty_string($data->created_utc);
+        $obj->created = $data->created_utc;
+        $obj->subreddit = $data->subreddit_name_prefixed;
+        $obj->numComments = $data->num_comments;
+        $obj->title = $obj->build_title($jTitle, $obj->subreddit, $jOver18, $jSpoiler);
+        return $obj;
     }// __construct
 
     public function set_comments($pCommentList){

@@ -105,7 +105,7 @@ class Redditer {
         }
         $postsCreated = 0;
         foreach ($posts as $post){
-            $redditPost = new Post($post->data);
+            $redditPost = Post::newPostData($post->data);
             $url = substr($redditPost->postUrl, 0, -1).".json";
             echo $url.PHP_EOL;
             $json = $this->get_json($url);
@@ -145,7 +145,7 @@ class Redditer {
                 }else{
                     $jNumReplies = 0;
                 }// if
-                $this->mCommentsList[] = new Comment($comment->data, $jNumReplies);
+                $this->mCommentsList[] = Comment::newCommentData($comment->data, $jNumReplies);
             }else if($comment->kind == "more"){
                 // comentado devido aos problemas de tempo, para cada comentario escondido
                 // é necessário abrir uma pagina e extrair o comentário o que torna o processo
