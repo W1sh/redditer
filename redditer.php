@@ -94,6 +94,7 @@ class Redditer {
                 $this->reddit_build_query();
             }
         }
+        echo $this->mJURL.PHP_EOL;
         $json = $this->get_json();
         if($pIsSinglePost){
             $posts = $json[0]->data->children;
@@ -106,6 +107,7 @@ class Redditer {
         foreach ($posts as $post){
             $redditPost = new Post($post->data);
             $url = substr($redditPost->postUrl, 0, -1).".json";
+            echo $url.PHP_EOL;
             $json = $this->get_json($url);
             if($json != false){
                 $postsCreated = $postsCreated + 1;
@@ -144,6 +146,19 @@ class Redditer {
                     $jNumReplies = 0;
                 }// if
                 $this->mCommentsList[] = new Comment($comment->data, $jNumReplies);
+            }else if($comment->kind == "more"){
+                // comentado devido aos problemas de tempo, para cada comentario escondido
+                // é necessário abrir uma pagina e extrair o comentário o que torna o processo
+                // de extrair um comentario incrivelmente lento - 01-07-2019
+                /*$jHiddenComments = $comment->data->children;
+                foreach($jHiddenComments as $commentTag){
+                    $url = str_replace(".json", "/".$commentTag.".json", $this->mJURL);
+                    $json = $this->get_json($url);
+                    if($json != false){
+                        $jcomments = $json[1]->data->children;
+                        $this->extract_comments($jcomments);
+                    }// if
+                }// foreach*/
             }// if
         }// foreach
     }// extract_comment
